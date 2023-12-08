@@ -4,15 +4,13 @@ import PackageDescription
 let package = Package(
     name: "ThodaCore",
     platforms: [
-       .macOS(.v13)
+       .macOS(.v11)
     ],
     dependencies: [
-        // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
-        // 🗄 An ORM for SQL and NoSQL databases.
         .package(url: "https://github.com/vapor/fluent.git", from: "4.8.0"),
-        // 🐘 Fluent driver for Postgres.
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.7.2"),
+        .package(url: "https://github.com/alexsteinerde/graphql-kit.git",from: "2.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -21,11 +19,13 @@ let package = Package(
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "GraphQLKit", package: "graphql-kit")
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
+            .product(name: "GraphQLKit", package: "graphql-kit"),
 
             // Workaround for https://github.com/apple/swift-package-manager/issues/6940
             .product(name: "Vapor", package: "vapor"),

@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import GraphQLKit
 
 func routes(_ app: Application) throws {
     app.get { req async in
@@ -9,6 +10,6 @@ func routes(_ app: Application) throws {
     app.get("hello") { req async -> String in
         "Hello, world!"
     }
-
-    try app.register(collection: TodoController())
+    
+    app.register(graphQLSchema: schema, withResolver: Resolver())
 }
