@@ -11,11 +11,8 @@ import Fluent
 final class User: Model, Content {
     static let schema = "users"
 
-    @ID(key: .id)
-    var id: UUID?
-
-    @Field(key: "usn")
-    var usn: String
+    @ID(custom: "id", generatedBy: .user)
+    var id: String?
 
     @Field(key: "name")
     var name: String
@@ -34,9 +31,8 @@ final class User: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, usn: String, name: String, phone: String, email: String, branch: String, gender: String) {
+    init(id: String, name: String, phone: String, email: String, branch: String, gender: String) {
         self.id = id
-        self.usn = usn
         self.name = name
         self.phone = phone
         self.email = email
