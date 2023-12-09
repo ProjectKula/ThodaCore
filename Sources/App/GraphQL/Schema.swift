@@ -8,6 +8,8 @@
 import Vapor
 import Graphiti
 
+struct AccountQuery: Encodable {}
+
 let schema = try! Schema<Resolver, Request> {
     Scalar(UUID.self)
     Scalar(Date.self)
