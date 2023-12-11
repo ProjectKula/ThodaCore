@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import CryptoKit
 
 final class UserAuth: Model, Content {
     static let schema = "userAuth"
@@ -15,14 +16,14 @@ final class UserAuth: Model, Content {
     var id: String?
     
     @Field(key: "salt")
-    var salt: String
+    var salt: [UInt8]
     
     @Field(key: "hash")
-    var hash: String
+    var hash: [UInt8]
     
     init() { }
     
-    init(id: String, salt: String, hash: String) {
+    init(id: String, salt: [UInt8], hash: [UInt8]) {
         self.id = id
         self.salt = salt
         self.hash = hash

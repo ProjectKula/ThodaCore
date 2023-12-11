@@ -11,10 +11,9 @@ struct CreateUserAuth: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("userAuth")
             .field("id", .string, .required)
-            .field("salt", .string, .required)
-            .field("hash", .string, .required)
+            .field("salt", .data, .required)
+            .field("hash", .data, .required)
             .unique(on: "salt")
-            .unique(on: "email")
             .create()
     }
 
