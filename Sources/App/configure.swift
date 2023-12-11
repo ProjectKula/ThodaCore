@@ -2,6 +2,9 @@ import NIOSSL
 import Fluent
 import FluentPostgresDriver
 import Vapor
+import Smtp
+
+var thodaCoreEmail: String = ""
 
 // configures your application
 public func configure(_ app: Application) async throws {
@@ -15,7 +18,16 @@ public func configure(_ app: Application) async throws {
         password: Environment.get("DATABASE_PASSWORD") ?? "12345678",
         database: Environment.get("DATABASE_NAME") ?? "postgres",
         tls: .prefer(try .init(configuration: .clientDefault)))
-    ), as: .psql)
+    ), as: .psql, isDefault: true)
+    
+    thodaCoreEmail = Environment.get("EMAIL_NAME") ?? "shrishvd.cy23@rvce.edu.in"
+    app.smtp.configuration.hostname = "smtp.gmail.com"
+    app.smtp.configuration.signInMethod = .credentials(
+        username: thodaCoreEmail,
+        password: Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
+    )
+    app.smtp.configuration.port = 587
+    app.smtp.configuration.secure = .startTls
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())

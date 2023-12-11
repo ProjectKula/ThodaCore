@@ -11,6 +11,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.8.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.7.2"),
         .package(url: "https://github.com/alexsteinerde/graphql-kit.git",from: "2.0.0"),
+        .package(url: "https://github.com/Mikroservices/Smtp.git", from: "3.0.0")
     ],
     targets: [
         .executableTarget(
@@ -19,13 +20,15 @@ let package = Package(
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                 .product(name: "Vapor", package: "vapor"),
-                .product(name: "GraphQLKit", package: "graphql-kit")
+                .product(name: "GraphQLKit", package: "graphql-kit"),
+                .product(name: "Smtp", package: "Smtp")
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
             .product(name: "GraphQLKit", package: "graphql-kit"),
+            .product(name: "Smtp", package: "Smtp"),
 
             // Workaround for https://github.com/apple/swift-package-manager/issues/6940
             .product(name: "Vapor", package: "vapor"),

@@ -11,6 +11,6 @@ func routes(_ app: Application) throws {
         "Hello, world!"
     }
     
-    app.register(graphQLSchema: schema, withResolver: Resolver())
+    app.register(graphQLSchema: schema, withResolver: Resolver.instance)
     try app.register(collection: AuthController())
 }

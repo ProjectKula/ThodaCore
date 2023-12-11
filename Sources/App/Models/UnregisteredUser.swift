@@ -1,5 +1,5 @@
 //
-//  User.swift
+//  UnregisteredUser.swift
 //
 //
 //  Created by Shrish Deshpande on 08/12/23.
@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class User: Model, Content {
+final class UnregisteredUser: Model, Content {
     static let schema = "users"
 
     @ID(custom: "id", generatedBy: .user)

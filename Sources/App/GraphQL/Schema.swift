@@ -14,7 +14,7 @@ let schema = try! Schema<Resolver, Request> {
     Scalar(UUID.self)
     Scalar(Date.self)
 
-    Type(User.self) {
+    Type(UnregisteredUser.self) {
         Field("id", at: \.id)
         Field("name", at: \.name)
         Field("phone", at: \.phone)
