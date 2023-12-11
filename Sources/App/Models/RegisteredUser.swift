@@ -43,10 +43,13 @@ final class RegisteredUser: Model, Content {
     
     @Field(key: "intake_year")
     var intakeYear: Int
+    
+    @Field(key: "reg_no")
+    var regNo: Int?
 
     init() { }
 
-    init(usn: String, name: String, phone: String, email: String, personalEmail: String?, branch: String, gender: String, pronouns: String?, bio: String?, intakeYear: Int) {
+    init(id: String, name: String, phone: String, email: String, personalEmail: String?, branch: String, gender: String, pronouns: String?, bio: String?, intakeYear: Int, regNo: Int = -1) {
         self.id = id
         self.name = name
         self.phone = phone
@@ -57,5 +60,6 @@ final class RegisteredUser: Model, Content {
         self.pronouns = pronouns
         self.bio = bio
         self.intakeYear = intakeYear
+        self.regNo = regNo
     }
 }

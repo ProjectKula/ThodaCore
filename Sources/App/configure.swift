@@ -19,6 +19,7 @@ public func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
+    app.migrations.add(CreateUserAuth())
 
     // register routes
     try routes(app)

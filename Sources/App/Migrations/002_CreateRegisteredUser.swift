@@ -21,6 +21,7 @@ struct CreateRegisteredUser: Migration {
             .field("date_registered", .datetime, .required)
             .field("bio", .string)
             .field("intake_year", .int, .required)
+            .field("reg_no", .int, .identifier(auto: true))
             .unique(on: "id")
             .unique(on: "email")
             .create()
