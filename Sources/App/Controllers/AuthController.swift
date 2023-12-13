@@ -104,9 +104,10 @@ struct AuthController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
         }
         
-        guard let token = req.headers.bearerAuthorization else {
+        if req.headers.bearerAuthorization == nil {
             throw Abort(.unauthorized, reason: "Please provide the bearer token")
         }
+        
         let payload = try req.jwt.verify(as: SignupStatePayload.self)
         let storedCode = try await req.redis.get(RedisKey(stringLiteral: payload.state), asJSON: String.self)
         
