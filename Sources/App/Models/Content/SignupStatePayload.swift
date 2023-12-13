@@ -12,6 +12,7 @@ struct SignupStatePayload: JWTPayload {
         case subject = "sub"
         case expiration = "exp"
         case id = "id"
+        case email = "email"
         case state = "st"
     }
     
@@ -20,6 +21,8 @@ struct SignupStatePayload: JWTPayload {
     var expiration: ExpirationClaim
     
     var id: String
+    
+    var email: String
     
     var state: String
     

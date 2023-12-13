@@ -67,6 +67,7 @@ struct AuthController: RouteCollection {
                 subject: "signup",
                 expiration: .init(value: .init(timeIntervalSinceNow: 600)),
                 id: try user.requireID(),
+                email: user.email,
                 state: [UInt8].random(count: 4).base64
             )
         }
@@ -107,11 +108,15 @@ struct AuthController: RouteCollection {
             throw Abort(.unauthorized, reason: "Please provide the bearer token")
         }
         let payload = try req.jwt.verify(as: SignupStatePayload.self)
-        let storedCode = try await req.redis.get(RedisKey(stringLiteral: token.token), asJSON: String.self)
+        let storedCode = try await req.redis.get(RedisKey(stringLiteral: payload.state), asJSON: String.self)
         
-        if args.code == storedCode {
-            throw Abort(.notImplemented)
+        if args.code != storedCode {
+            throw Abort(.badRequest, reason: "Invalid confirmation code provided")
         }
+        
+        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: args.id, email: args.email)).get()
+        let registeredUser = RegisteredUser(user: user)
+        registeredUser.save(on: request.db)
         
         throw Abort(.notImplemented)
     }
