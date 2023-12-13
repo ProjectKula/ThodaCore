@@ -13,6 +13,7 @@ let package = Package(
         .package(url: "https://github.com/alexsteinerde/graphql-kit.git",from: "2.0.0"),
         .package(url: "https://github.com/Mikroservices/Smtp.git", from: "3.0.0"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/redis.git", from: "4.0.0")
     ],
     targets: [
         .executableTarget(
@@ -23,7 +24,8 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "GraphQLKit", package: "graphql-kit"),
                 .product(name: "Smtp", package: "Smtp"),
-                .product(name: "JWT", package: "jwt")
+                .product(name: "JWT", package: "jwt"),
+                .product(name: "Redis", package: "redis")
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [
@@ -32,11 +34,11 @@ let package = Package(
             .product(name: "GraphQLKit", package: "graphql-kit"),
             .product(name: "Smtp", package: "Smtp"),
             .product(name: "JWT", package: "jwt"),
-
             // Workaround for https://github.com/apple/swift-package-manager/issues/6940
             .product(name: "Vapor", package: "vapor"),
             .product(name: "Fluent", package: "Fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+            .product(name: "Redis", package: "redis")
         ])
     ]
 )

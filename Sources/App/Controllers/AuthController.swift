@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 import Smtp
+import JWT
 
 struct AuthController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -21,6 +22,10 @@ struct AuthController: RouteCollection {
         auth.group("signup") { e in
             e.post(use: initialSignup)
             e.get(use: methodNotAllowed)
+            e.group("code") { e in
+                e.get(use: methodNotAllowed)
+                e.post(use: verifySignupCode)
+            }
         }
     }
     
@@ -51,11 +56,13 @@ struct AuthController: RouteCollection {
             throw Abort(.conflict, reason: "User already exists")
         }
         
+        let code = try await getOrGenerateConfirmationCode(usn: try user.requireID(), req: req)
+        
         let email = try Email(
-            from: EmailAddress(address: thodaCoreEmail, name: "Thoda Core"),
+            from: EmailAddress(address: AppConfig.defaultEmail, name: "Thoda Core"),
             to: [EmailAddress(address: user.email, name: user.name)],
             subject: "Your verification code",
-            body: "haha not implemented lol")
+            body: "Your verification code is: \(code)")
         
         let sent = try await req.smtp.send(email) { message in
             req.application.logger.info("\(message)")
@@ -71,6 +78,18 @@ struct AuthController: RouteCollection {
         return SignupCodeResponseBody(success: result)
     }
     
+    func verifySignupCode(req: Request) async throws -> AuthResponseBody {
+        let args: SignupCodeRequest
+        
+        do {
+            args = try req.content.decode(SignupCodeRequest.self)
+        } catch {
+            throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
+        }
+        
+        throw Abort(.notImplemented)
+    }
+    
     func methodNotAllowed(req: Request) async throws -> AuthResponseBody {
         throw Abort(.methodNotAllowed)
     }
@@ -81,6 +100,12 @@ struct LoginAuthRequest: Content {
     let pw: String
 }
 
+struct SignupCodeRequest: Content {
+    let id: String
+    let nonce: String
+    let code: String
+}
+
 struct AuthResponseBody: Content {
     let accessToken: String
     let refreshToken: String
@@ -88,4 +113,25 @@ struct AuthResponseBody: Content {
 
 struct SignupCodeResponseBody: Content {
     let success: Bool
+}
+
+struct SignupStatePayload: JWTPayload {
+    enum CodingKeys: String, CodingKey {
+        case subject = "sub"
+        case expiration = "exp"
+        case id = "id"
+        case state = "st"
+    }
+    
+    var subject: SubjectClaim
+    
+    var expiration: ExpirationClaim
+    
+    var id: String
+    
+    var state: String
+    
+    func verify(using signer: JWTSigner) throws {
+        try self.expiration.verifyNotExpired()
+    }
 }

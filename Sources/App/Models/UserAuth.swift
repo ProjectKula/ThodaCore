@@ -7,7 +7,6 @@
 
 import Vapor
 import Fluent
-import CryptoKit
 
 final class UserAuth: Model, Content {
     static let schema = "userAuth"

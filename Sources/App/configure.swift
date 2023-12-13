@@ -3,8 +3,23 @@ import Fluent
 import FluentPostgresDriver
 import Vapor
 import Smtp
+import Redis
 
 var thodaCoreEmail: String = ""
+
+struct AppConfig {
+    static let databaseHost = Environment.get("DATABASE_HOST") ?? "localhost"
+    static let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432
+    static let databaseUsername = Environment.get("DATABASE_USERNAME") ?? "postgres"
+    static let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "12345678"
+    static let databaseName = Environment.get("DATABASE_NAME") ?? "postgres"
+    static let defaultEmail = Environment.get("EMAIL_NAME") ?? "postalkings.postcrossing@gmail.com"
+    static let smtpHost = Environment.get("EMAIL_SMTP") ?? "smtp.mail.me.com"
+    static let smtpPassword = Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
+    static let smtpPort = Environment.get("SMTP_PORT").flatMap(Int.init(_:)) ?? 587
+    static let redisHost = Environment.get("REDIS_HOST") ?? "localhost"
+    static let signupCodeExpireTime = Environment.get("SIGNUP_CODE_EXPIRE_TIME").flatMap(Int.init(_:)) ?? 600
+}
 
 // configures your application
 public func configure(_ app: Application) async throws {
@@ -12,22 +27,23 @@ public func configure(_ app: Application) async throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
     app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432,
-        username: Environment.get("DATABASE_USERNAME") ?? "postgres",
-        password: Environment.get("DATABASE_PASSWORD") ?? "12345678",
-        database: Environment.get("DATABASE_NAME") ?? "postgres",
+        hostname: AppConfig.databaseHost,
+        port: AppConfig.databasePort,
+        username: AppConfig.databaseUsername,
+        password: AppConfig.databasePassword,
+        database: AppConfig.databaseName,
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql, isDefault: true)
     
-    thodaCoreEmail = Environment.get("EMAIL_NAME") ?? "shrishvd.cy23@rvce.edu.in"
-    app.smtp.configuration.hostname = "smtp.gmail.com"
+    app.smtp.configuration.hostname = AppConfig.smtpHost
     app.smtp.configuration.signInMethod = .credentials(
         username: thodaCoreEmail,
-        password: Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
+        password: AppConfig.smtpPassword
     )
-    app.smtp.configuration.port = 587
+    app.smtp.configuration.port = AppConfig.smtpPort
     app.smtp.configuration.secure = .startTls
+    
+    app.redis.configuration = try .init(hostname: AppConfig.redisHost)
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
