@@ -114,9 +114,9 @@ struct AuthController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid confirmation code provided")
         }
         
-        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: args.id, email: args.email)).get()
-        let registeredUser = RegisteredUser(user: user)
-        registeredUser.save(on: request.db)
+        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
+        let registeredUser = try RegisteredUser(user: user)
+        try await registeredUser.save(on: req.db)
         
         throw Abort(.notImplemented)
     }
