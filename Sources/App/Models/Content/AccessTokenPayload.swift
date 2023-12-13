@@ -8,7 +8,7 @@
 import JWT
 import Vapor
 
-class AccessTokenPayload: JWTPayload {
+public class AccessTokenPayload: JWTPayload {
     enum CodingKeys: String, CodingKey {
         case id = "sub"
         case expiration = "exp"
@@ -16,21 +16,26 @@ class AccessTokenPayload: JWTPayload {
         case issuer = "iss"
     }
     
-    init(id: String) {
+    public init(id: String) {
         self.expiration = .init(value: .init(timeIntervalSinceNow: 86400))
         self.id = .init(stringLiteral: id)
         self.token = [UInt8].random(count: 8).base64
     }
     
-    var id: SubjectClaim
+    public var id: SubjectClaim
     
-    var expiration: ExpirationClaim
+    public var expiration: ExpirationClaim
     
-    var token: String
+    public var token: String
     
-    var issuer: String = "thodaCore"
+    public var issuer: String = "thodaCore"
     
-    func verify(using signer: JWTSigner) throws {
+    public func verify(using signer: JWTSigner) throws {
         try self.expiration.verifyNotExpired()
     }
+}
+
+@inlinable
+func generateTokenPair(id: String) -> (AccessTokenPayload, String) {
+    return (AccessTokenPayload(id: id), [UInt8].random(count: 8).base64)
 }
