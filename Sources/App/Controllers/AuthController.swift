@@ -9,6 +9,7 @@ import Vapor
 import Fluent
 import Smtp
 import JWT
+import Redis
 
 struct AuthController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -56,14 +57,21 @@ struct AuthController: RouteCollection {
             throw Abort(.conflict, reason: "User already exists")
         }
         
-        let payload = SignupStatePayload(
-            subject: "signup",
-            expiration: .init(value: .init(timeIntervalSinceNow: 600)),
-            id: try user.requireID(),
-            state: [UInt8].random(count: 4).base64
-        )
+        let payload: SignupStatePayload
         
-        let code = try await getOrGenerateConfirmationCode(jwt: req.jwt.sign(payload), req: req)
+        if let token = req.headers.bearerAuthorization {
+            payload = try req.jwt.verify(as: SignupStatePayload.self)
+            
+        } else {
+            payload = SignupStatePayload(
+                subject: "signup",
+                expiration: .init(value: .init(timeIntervalSinceNow: 600)),
+                id: try user.requireID(),
+                state: [UInt8].random(count: 4).base64
+            )
+        }
+        
+        let code = try await getOrGenerateConfirmationCode(jwt: payload.state, req: req)
         
         let email = try Email(
             from: EmailAddress(address: AppConfig.defaultEmail, name: "Thoda Core"),
@@ -95,6 +103,16 @@ struct AuthController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
         }
         
+        guard let token = req.headers.bearerAuthorization else {
+            throw Abort(.unauthorized, reason: "Please provide the bearer token")
+        }
+        let payload = try req.jwt.verify(as: SignupStatePayload.self)
+        let storedCode = try await req.redis.get(RedisKey(stringLiteral: token.token), asJSON: String.self)
+        
+        if args.code == storedCode {
+            throw Abort(.notImplemented)
+        }
+        
         throw Abort(.notImplemented)
     }
     
@@ -120,25 +138,4 @@ struct SignupCodeResponseBody: Content {
 
 struct SignupCodeRequest: Content {
     let code: String
-}
-
-struct SignupStatePayload: JWTPayload {
-    enum CodingKeys: String, CodingKey {
-        case subject = "sub"
-        case expiration = "exp"
-        case id = "id"
-        case state = "st"
-    }
-    
-    var subject: SubjectClaim
-    
-    var expiration: ExpirationClaim
-    
-    var id: String
-    
-    var state: String
-    
-    func verify(using signer: JWTSigner) throws {
-        try self.expiration.verifyNotExpired()
-    }
 }
