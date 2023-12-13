@@ -20,15 +20,15 @@ func generateRandomConfirmationCode() -> String {
     return randomCode
 }
 
-func getOrGenerateConfirmationCode(usn: String, req: Request) async throws -> String {
-    if let code = try await req.redis.get("conf_\(usn)", asJSON: String.self) {
+func getOrGenerateConfirmationCode(jwt: String, req: Request) async throws -> String {
+    if let code = try await req.redis.get(RedisKey(stringLiteral: jwt), asJSON: String.self) {
         return code
     }
     
     let newCode = generateRandomConfirmationCode()
-    let result = try await req.redis.set("conf_\(usn)", to: newCode, onCondition: .none, expiration: .seconds(600)).get()
+    let result = try await req.redis.set(RedisKey(stringLiteral: jwt), to: newCode, onCondition: .none, expiration: .seconds(600)).get()
     if result == .conditionNotMet {
-        throw Abort(.serviceUnavailable, reason: "Failed to set confirmation code for \(usn)")
+        throw Abort(.serviceUnavailable, reason: "Failed to set confirmation code for \(jwt)")
     }
     return newCode
 }

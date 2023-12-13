@@ -4,8 +4,7 @@ import FluentPostgresDriver
 import Vapor
 import Smtp
 import Redis
-
-var thodaCoreEmail: String = ""
+import JWT
 
 struct AppConfig {
     static let databaseHost = Environment.get("DATABASE_HOST") ?? "localhost"
@@ -19,6 +18,7 @@ struct AppConfig {
     static let smtpPort = Environment.get("SMTP_PORT").flatMap(Int.init(_:)) ?? 587
     static let redisHost = Environment.get("REDIS_HOST") ?? "localhost"
     static let signupCodeExpireTime = Environment.get("SIGNUP_CODE_EXPIRE_TIME").flatMap(Int.init(_:)) ?? 600
+    static let jwtSigningKey = Environment.get("JWT_SIGNING_KEY") ?? "secret"
 }
 
 // configures your application
@@ -37,7 +37,7 @@ public func configure(_ app: Application) async throws {
     
     app.smtp.configuration.hostname = AppConfig.smtpHost
     app.smtp.configuration.signInMethod = .credentials(
-        username: thodaCoreEmail,
+        username: AppConfig.defaultEmail,
         password: AppConfig.smtpPassword
     )
     app.smtp.configuration.port = AppConfig.smtpPort
@@ -48,6 +48,8 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
     app.migrations.add(CreateUserAuth())
+    
+    app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
 
     // register routes
     try routes(app)

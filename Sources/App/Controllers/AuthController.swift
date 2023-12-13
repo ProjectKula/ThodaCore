@@ -56,13 +56,21 @@ struct AuthController: RouteCollection {
             throw Abort(.conflict, reason: "User already exists")
         }
         
-        let code = try await getOrGenerateConfirmationCode(usn: try user.requireID(), req: req)
+        let payload = SignupStatePayload(
+            subject: "signup",
+            expiration: .init(value: .init(timeIntervalSinceNow: 600)),
+            id: try user.requireID(),
+            state: [UInt8].random(count: 4).base64
+        )
+        
+        let code = try await getOrGenerateConfirmationCode(jwt: req.jwt.sign(payload), req: req)
         
         let email = try Email(
             from: EmailAddress(address: AppConfig.defaultEmail, name: "Thoda Core"),
             to: [EmailAddress(address: user.email, name: user.name)],
             subject: "Your verification code",
-            body: "Your verification code is: \(code)")
+            body: "Your verification code is: \(code)"
+        )
         
         let sent = try await req.smtp.send(email) { message in
             req.application.logger.info("\(message)")
@@ -75,7 +83,7 @@ struct AuthController: RouteCollection {
             throw Abort(.internalServerError, reason: "Failed to send email: \(error.localizedDescription)")
         }
         
-        return SignupCodeResponseBody(success: result)
+        return SignupCodeResponseBody(success: result, state: "")
     }
     
     func verifySignupCode(req: Request) async throws -> AuthResponseBody {
@@ -100,12 +108,6 @@ struct LoginAuthRequest: Content {
     let pw: String
 }
 
-struct SignupCodeRequest: Content {
-    let id: String
-    let nonce: String
-    let code: String
-}
-
 struct AuthResponseBody: Content {
     let accessToken: String
     let refreshToken: String
@@ -113,6 +115,11 @@ struct AuthResponseBody: Content {
 
 struct SignupCodeResponseBody: Content {
     let success: Bool
+    let state: String
+}
+
+struct SignupCodeRequest: Content {
+    let code: String
 }
 
 struct SignupStatePayload: JWTPayload {
