@@ -59,9 +59,8 @@ struct AuthController: RouteCollection {
         
         let payload: SignupStatePayload
         
-        if let token = req.headers.bearerAuthorization {
+        if req.headers.bearerAuthorization != nil {
             payload = try req.jwt.verify(as: SignupStatePayload.self)
-            
         } else {
             payload = SignupStatePayload(
                 subject: "signup",
