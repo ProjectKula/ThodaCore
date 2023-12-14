@@ -49,7 +49,7 @@ final class RegisteredUser: Model, Content {
 
     init() { }
 
-    init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int = -1) {
+    init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = nil) {
         self.id = id
         self.name = name
         self.phone = phone

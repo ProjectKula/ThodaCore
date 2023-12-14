@@ -16,7 +16,7 @@ struct AppConfig {
     static let smtpHost = Environment.get("EMAIL_SMTP") ?? "smtp.mail.me.com"
     static let smtpPassword = Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
     static let smtpPort = Environment.get("SMTP_PORT").flatMap(Int.init(_:)) ?? 587
-    static let redisHost = Environment.get("REDIS_HOST") ?? "localhost"
+    static let redisHost = Environment.get("REDIS_HOST") ?? "127.0.0.1"
     static let signupCodeExpireTime = Environment.get("SIGNUP_CODE_EXPIRE_TIME").flatMap(Int.init(_:)) ?? 600
     static let jwtSigningKey = Environment.get("JWT_SIGNING_KEY") ?? "secret"
 }
@@ -47,7 +47,7 @@ public func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
-    app.migrations.add(CreateUserAuth())
+    // app.migrations.add(CreateUserAuth())
     
     app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
 

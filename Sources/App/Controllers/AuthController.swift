@@ -67,7 +67,7 @@ struct AuthController: RouteCollection {
                 expiration: .init(value: .init(timeIntervalSinceNow: 600)),
                 id: try user.requireID(),
                 email: user.email,
-                state: [UInt8].random(count: 4).base64
+                state: [UInt8].random(count: 32).base64
             )
         }
         
@@ -91,7 +91,7 @@ struct AuthController: RouteCollection {
             throw Abort(.internalServerError, reason: "Failed to send email: \(error.localizedDescription)")
         }
         
-        return SignupCodeResponseBody(success: result, state: "")
+        return SignupCodeResponseBody(success: result, state: try req.jwt.sign(payload))
     }
     
     func verifySignupCode(req: Request) async throws -> AuthResponseBody {
@@ -108,17 +108,19 @@ struct AuthController: RouteCollection {
         }
         
         let payload = try req.jwt.verify(as: SignupStatePayload.self)
-        let storedCode = try await req.redis.get(RedisKey(stringLiteral: payload.state), asJSON: String.self)
+        let storedCode = try await req.redis.get(RedisKey(stringLiteral: payload.state), asJSON: Int.self)
         
-        if args.code != storedCode {
-            throw Abort(.badRequest, reason: "Invalid confirmation code provided")
+        if storedCode == nil {
+            throw Abort(.badRequest, reason: "No confirmation code present")
+        } else if storedCode != Int(args.code) {
+            throw Abort(.unauthorized, reason: "Invalid confirmation code")
         }
         
         let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
         let registeredUser = try RegisteredUser(user: user)
         try await registeredUser.save(on: req.db)
         
-        throw Abort(.notImplemented)
+        throw Abort(.notImplemented, reason: "Signup is complete but password is not")
     }
     
     func methodNotAllowed(req: Request) async throws -> AuthResponseBody {

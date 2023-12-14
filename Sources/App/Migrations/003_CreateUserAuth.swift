@@ -18,6 +18,6 @@ struct CreateUserAuth: Migration {
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("users").delete()
+        return database.schema("userAuth").delete()
     }
 }
