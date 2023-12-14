@@ -6,9 +6,10 @@
 //
 
 import JWT
+import Vapor
 
-struct SignupStatePayload: JWTPayload {
-    enum CodingKeys: String, CodingKey {
+public struct SignupStatePayload: JWTPayload {
+    public enum CodingKeys: String, CodingKey {
         case subject = "sub"
         case expiration = "exp"
         case id = "id"
@@ -16,17 +17,22 @@ struct SignupStatePayload: JWTPayload {
         case state = "st"
     }
     
-    var subject: SubjectClaim
+    public var subject: SubjectClaim
     
-    var expiration: ExpirationClaim
+    public var expiration: ExpirationClaim
     
-    var id: String
+    public var id: String
     
-    var email: String
+    public var email: String
     
-    var state: String
+    public var state: String
     
-    func verify(using signer: JWTSigner) throws {
+    public func verify(using signer: JWTSigner) throws {
         try self.expiration.verifyNotExpired()
     }
+}
+
+@inlinable
+func getAndVerifySignupState(req: Request) throws -> SignupStatePayload {
+    return try req.jwt.verify(as: SignupStatePayload.self)
 }

@@ -29,6 +29,11 @@ struct AuthController: RouteCollection {
             }
         }
         
+        auth.group("cred") { e in
+            e.post(use: setCredentials)
+            e.get(use: methodNotAllowed)
+        }
+        
         auth.group("refresh") { e in
             e.post(use: methodNotAllowed)
             e.get(use: methodNotAllowed)
@@ -65,7 +70,7 @@ struct AuthController: RouteCollection {
         let payload: SignupStatePayload
         
         if req.headers.bearerAuthorization != nil {
-            payload = try req.jwt.verify(as: SignupStatePayload.self)
+            payload = try getAndVerifySignupState(req: req)
         } else {
             payload = SignupStatePayload(
                 subject: "signup",
@@ -112,8 +117,8 @@ struct AuthController: RouteCollection {
             throw Abort(.unauthorized, reason: "Please provide the bearer token")
         }
         
-        let payload = try req.jwt.verify(as: SignupStatePayload.self)
-        let storedCode = try await req.redis.get(RedisKey(stringLiteral: payload.state), asJSON: Int.self)
+        let payload = try getAndVerifySignupState(req: req)
+        let storedCode = try await req.redis.get(.init(stringLiteral: payload.state), asJSON: Int.self)
         
         if storedCode == nil {
             throw Abort(.badRequest, reason: "No confirmation code present")
@@ -127,6 +132,10 @@ struct AuthController: RouteCollection {
         
         throw Abort(.notImplemented, reason: "Signup is complete but password is not")
     }
+    
+//    func setCredentials(req: Request) async throws -> String {
+//
+//    }
     
     func refreshToken(req: Request) async throws -> AuthResponseBody {
         throw Abort(.notImplemented)
