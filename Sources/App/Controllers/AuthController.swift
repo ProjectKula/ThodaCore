@@ -28,6 +28,11 @@ struct AuthController: RouteCollection {
                 e.post(use: verifySignupCode)
             }
         }
+        
+        auth.group("refresh") { e in
+            e.post(use: methodNotAllowed)
+            e.get(use: methodNotAllowed)
+        }
     }
     
     func initialAuth(req: Request) async throws -> AuthResponseBody {
@@ -121,6 +126,10 @@ struct AuthController: RouteCollection {
         try await registeredUser.save(on: req.db)
         
         throw Abort(.notImplemented, reason: "Signup is complete but password is not")
+    }
+    
+    func refreshToken(req: Request) async throws -> AuthResponseBody {
+        throw Abort(.notImplemented)
     }
     
     func methodNotAllowed(req: Request) async throws -> AuthResponseBody {

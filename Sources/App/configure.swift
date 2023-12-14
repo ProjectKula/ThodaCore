@@ -47,7 +47,7 @@ public func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
-    // app.migrations.add(CreateUserAuth())
+    app.migrations.add(CreateUserAuth())
     
     app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
 
