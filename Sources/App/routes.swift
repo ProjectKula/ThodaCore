@@ -12,5 +12,9 @@ func routes(_ app: Application) throws {
     }
     
     app.register(graphQLSchema: schema, withResolver: Resolver.instance)
-    try app.register(collection: AuthController())
+    
+    // Auth controllers
+    try app.register(collection: SignupController())
+    try app.register(collection: LoginController())
+    try app.register(collection: RefreshController())
 }

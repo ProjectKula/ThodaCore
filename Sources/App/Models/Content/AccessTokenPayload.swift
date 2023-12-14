@@ -46,6 +46,11 @@ struct RefreshTokenRequest: Content {
     var refreshToken: String
 }
 
+struct AuthResponseBody: Content {
+    let accessToken: String
+    let refreshToken: String
+}
+
 func refreshAccessToken(req: Request) async throws -> (AccessTokenPayload, String) {
     let oldToken = try req.jwt.verify(as: UnverifiedAccessTokenPayload.self)
     try await blacklistToken(req: req, token: oldToken)

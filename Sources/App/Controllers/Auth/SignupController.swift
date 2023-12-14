@@ -1,5 +1,5 @@
 //
-//  AuthController.swift
+//  SignupController.swift
 //
 //
 //  Created by Shrish Deshpande on 11/12/23.
@@ -11,48 +11,23 @@ import Smtp
 import JWT
 import Redis
 
-struct AuthController: RouteCollection {
+struct SignupController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let auth = routes.grouped("auth")
+        let e = routes.grouped("auth").grouped("signup")
         
-        auth.group("login") { e in
-            e.post(use: initialAuth)
+        e.post(use: initialSignup)
+        e.get(use: methodNotAllowed)
+        e.group("code") { e in
             e.get(use: methodNotAllowed)
+            e.post(use: verifySignupCode)
         }
-        
-        auth.group("signup") { e in
-            e.post(use: initialSignup)
-            e.get(use: methodNotAllowed)
-            e.group("code") { e in
-                e.get(use: methodNotAllowed)
-                e.post(use: verifySignupCode)
-            }
-        }
-        
-        auth.group("cred") { e in
-            e.post(use: setCredentials)
-            e.get(use: methodNotAllowed)
-        }
-        
-        auth.group("refresh") { e in
-            e.post(use: methodNotAllowed)
+        e.group("cred") { e in
+            e.post(use: setInitialCredentials)
             e.get(use: methodNotAllowed)
         }
     }
     
-    func initialAuth(req: Request) async throws -> AuthResponseBody {
-        let params: LoginAuthRequest
-        
-        do {
-            params = try req.content.decode(LoginAuthRequest.self)
-        } catch {
-            throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
-        }
-        
-        throw Abort(.notImplemented, reason: "we have no users yet \(params.id)")
-    }
-    
-    func initialSignup(req: Request) async throws -> SignupCodeResponseBody {
+    func initialSignup(req: Request) async throws -> SignupStateResponseBody {
         let args: GetUserArgs
         
         do {
@@ -73,7 +48,7 @@ struct AuthController: RouteCollection {
             payload = try getAndVerifySignupState(req: req)
         } else {
             payload = SignupStatePayload(
-                subject: "signup",
+                subject: "signupCode",
                 expiration: .init(value: .init(timeIntervalSinceNow: 600)),
                 id: try user.requireID(),
                 email: user.email,
@@ -101,10 +76,10 @@ struct AuthController: RouteCollection {
             throw Abort(.internalServerError, reason: "Failed to send email: \(error.localizedDescription)")
         }
         
-        return SignupCodeResponseBody(success: result, state: try req.jwt.sign(payload))
+        return SignupStateResponseBody(success: result, state: try req.jwt.sign(payload))
     }
     
-    func verifySignupCode(req: Request) async throws -> AuthResponseBody {
+    func verifySignupCode(req: Request) async throws -> SignupStateResponseBody {
         let args: SignupCodeRequest
         
         do {
@@ -118,6 +93,11 @@ struct AuthController: RouteCollection {
         }
         
         let payload = try getAndVerifySignupState(req: req)
+        
+        if payload.subject.value != "signupCode" {
+            throw Abort(.badRequest, reason: "Invalid bearer token")
+        }
+        
         let storedCode = try await req.redis.get(.init(stringLiteral: payload.state), asJSON: Int.self)
         
         if storedCode == nil {
@@ -127,36 +107,49 @@ struct AuthController: RouteCollection {
         }
         
         let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
-        let registeredUser = try RegisteredUser(user: user)
-        try await registeredUser.save(on: req.db)
         
-        throw Abort(.notImplemented, reason: "Signup is complete but password is not")
+        let newPayload = SignupStatePayload(
+            subject: "credentials",
+            expiration: .init(value: .init(timeIntervalSinceNow: 600)),
+            id: payload.id,
+            email: payload.email,
+            state: [UInt8].random(count: 32).base64
+        )
+        
+        return SignupStateResponseBody(success: true, state: try req.jwt.sign(newPayload))
     }
     
-//    func setCredentials(req: Request) async throws -> String {
-//
-//    }
-    
-    func refreshToken(req: Request) async throws -> AuthResponseBody {
-        throw Abort(.notImplemented)
+    func setInitialCredentials(req: Request) async throws -> SignupStateResponseBody {
+        let pwBody: InitialPasswordRequest
+        
+        do {
+            pwBody = try req.content.decode(InitialPasswordRequest.self)
+        } catch {
+            throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
+        }
+        
+        let payload = try getAndVerifySignupState(req: req)
+        
+        if payload.subject.value != "credentials" {
+            throw Abort(.badRequest, reason: "Invalid bearer token")
+        }
+        
+        let userAuth: UserAuth = try .init(id: payload.id, pw: pwBody.password)
+        
+        throw Abort(.notImplemented, reason: "Signup not implemented")
     }
     
+    @inlinable
     func methodNotAllowed(req: Request) async throws -> AuthResponseBody {
         throw Abort(.methodNotAllowed)
     }
 }
 
-struct LoginAuthRequest: Content {
-    let id: String
-    let pw: String
+struct InitialPasswordRequest: Content {
+    let password: String
 }
 
-struct AuthResponseBody: Content {
-    let accessToken: String
-    let refreshToken: String
-}
-
-struct SignupCodeResponseBody: Content {
+struct SignupStateResponseBody: Content {
     let success: Bool
     let state: String
 }
