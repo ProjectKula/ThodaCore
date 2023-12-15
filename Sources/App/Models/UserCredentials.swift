@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 import Crypto
 
-final class UserAuth: Model, Content {
+final class UserCredentials: Model, Content {
     static let schema = "userAuth"
     
     @ID(custom: "id", generatedBy: .user)
@@ -37,7 +37,7 @@ final class UserAuth: Model, Content {
 }
 
 func authUserWithPassword(req: Request, args: LoginAuthRequest) async throws -> Bool {
-    let auth = try await UserAuth.query(on: req.db)
+    let auth = try await UserCredentials.query(on: req.db)
         .filter(\.$id == args.id)
         .first()
         .unwrap(orError: Abort(.notFound, reason: "Could not find user with id \(args.id)"))
