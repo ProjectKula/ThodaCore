@@ -10,7 +10,7 @@ import Fluent
 import Crypto
 
 final class UserCredentials: Model, Content {
-    static let schema = "userAuth"
+    static let schema = "userCred"
     
     @ID(custom: "id", generatedBy: .user)
     var id: String?

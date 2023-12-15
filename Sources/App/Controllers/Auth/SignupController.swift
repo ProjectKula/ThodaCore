@@ -133,7 +133,7 @@ struct SignupController: RouteCollection {
         }
         
         let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
-        let userAuth: UserAuth = try .init(id: payload.id, pw: pwBody.password)
+        let userAuth: UserCredentials = try .init(id: payload.id, pw: pwBody.password)
         let registeredUser = try RegisteredUser(user: user)
         try await registeredUser.update(on: req.db)
         try await userAuth.update(on: req.db)
