@@ -36,6 +36,16 @@ final class UserAuth: Model, Content {
     }
 }
 
+func authUserWithPassword(req: Request, args: LoginAuthRequest) async throws -> Bool {
+    let auth = try await UserAuth.query(on: req.db)
+        .filter(\.$id == args.id)
+        .first()
+        .unwrap(orError: Abort(.notFound, reason: "Could not find user with id \(args.id)"))
+        .get()
+    let hash = try combineSaltAndHash(pw: args.pw, salt: auth.salt)
+    return hash == auth.hash
+}
+
 func combineSaltAndHash(pw: String, salt: [UInt8]) throws -> [UInt8] {
     guard let passwordData = pw.data(using: .utf8) else {
         throw Abort(.internalServerError, reason: "Error resolving password")
@@ -50,4 +60,9 @@ func combineSaltAndHash(pw: String, salt: [UInt8]) throws -> [UInt8] {
     }
     
     return hashedData
+}
+
+struct LoginAuthRequest: Content {
+    let id: String
+    let pw: String
 }

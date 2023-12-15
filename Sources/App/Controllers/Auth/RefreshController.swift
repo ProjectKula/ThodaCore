@@ -16,7 +16,7 @@ struct RefreshController: RouteCollection {
     }
     
     func refreshToken(req: Request) async throws -> AuthResponseBody {
-        throw Abort(.notImplemented)
+        return try await refreshAccessTokenResponse(req: req)
     }
     
     @inlinable

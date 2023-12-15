@@ -24,16 +24,15 @@ struct LoginController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
         }
         
-        throw Abort(.notImplemented, reason: "we have no users yet \(params.id)")
+        if try await authUserWithPassword(req: req, args: params) {
+            return try await generateTokenPairResponse(req: req, id: params.id)
+        } else {
+            throw Abort(.badRequest, reason: "Invalid credentials")
+        }
     }
     
     @inlinable
     func methodNotAllowed(req: Request) async throws -> AuthResponseBody {
         throw Abort(.methodNotAllowed)
     }
-}
-
-struct LoginAuthRequest: Content {
-    let id: String
-    let pw: String
 }

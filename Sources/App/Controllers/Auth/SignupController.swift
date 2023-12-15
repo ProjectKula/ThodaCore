@@ -106,8 +106,6 @@ struct SignupController: RouteCollection {
             throw Abort(.unauthorized, reason: "Invalid confirmation code")
         }
         
-        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
-        
         let newPayload = SignupStatePayload(
             subject: "credentials",
             expiration: .init(value: .init(timeIntervalSinceNow: 600)),
@@ -119,7 +117,7 @@ struct SignupController: RouteCollection {
         return SignupStateResponseBody(success: true, state: try req.jwt.sign(newPayload))
     }
     
-    func setInitialCredentials(req: Request) async throws -> SignupStateResponseBody {
+    func setInitialCredentials(req: Request) async throws -> AuthResponseBody {
         let pwBody: InitialPasswordRequest
         
         do {
@@ -134,9 +132,13 @@ struct SignupController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid bearer token")
         }
         
+        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
         let userAuth: UserAuth = try .init(id: payload.id, pw: pwBody.password)
+        let registeredUser = try RegisteredUser(user: user)
+        try await registeredUser.update(on: req.db)
+        try await userAuth.update(on: req.db)
         
-        throw Abort(.notImplemented, reason: "Signup not implemented")
+        return try await generateTokenPairResponse(req: req, id: payload.id)
     }
     
     @inlinable

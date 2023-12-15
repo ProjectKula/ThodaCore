@@ -51,6 +51,11 @@ struct AuthResponseBody: Content {
     let refreshToken: String
 }
 
+func refreshAccessTokenResponse(req: Request) async throws -> AuthResponseBody {
+    let tokenPair = try await refreshAccessToken(req: req)
+    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1)
+}
+
 func refreshAccessToken(req: Request) async throws -> (AccessTokenPayload, String) {
     let oldToken = try req.jwt.verify(as: UnverifiedAccessTokenPayload.self)
     try await blacklistToken(req: req, token: oldToken)
@@ -86,6 +91,11 @@ func getAndVerifyAccessToken(req: Request) async throws -> AccessTokenPayload {
     }
     
     return payload
+}
+
+func generateTokenPairResponse(req: Request, id: String) async throws -> AuthResponseBody {
+    let tokenPair = try await generateTokenPair(req: req, id: id)
+    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1)
 }
 
 func generateTokenPair(req: Request, id: String) async throws -> (AccessTokenPayload, String) {
