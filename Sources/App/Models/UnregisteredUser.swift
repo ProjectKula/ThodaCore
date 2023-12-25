@@ -39,4 +39,6 @@ final class UnregisteredUser: Model, Content {
         self.branch = branch
         self.gender = gender
     }
+    
+    
 }

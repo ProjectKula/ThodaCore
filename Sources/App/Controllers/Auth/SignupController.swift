@@ -132,17 +132,18 @@ struct SignupController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid bearer token")
         }
         
-        print("getting user")
         let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
-        print("initializing user cred")
         let userAuth: UserCredentials = try .init(id: payload.id, pw: pwBody.password)
-        print("initializing registered user")
-        let registeredUser = try RegisteredUser(user: user)
-        print("updating registered user in db")
-        try await registeredUser.create(on: req.db)
-        print("updating user auth in db")
-        try await userAuth.create(on: req.db)
-        print("done")
+        let registeredUser = try InitialRegisteredUser(user: user)
+        
+        do {
+            try await req.db.transaction { db in
+                try await registeredUser.create(on: db)
+                try await userAuth.create(on: db)
+            }
+        } catch {
+            throw Abort(.internalServerError, reason: "Database error")
+        }
         
         return try await generateTokenPairResponse(req: req, id: payload.id)
     }

@@ -49,11 +49,13 @@ func authUserWithPassword(req: Request, args: LoginAuthRequest) async throws -> 
 }
 
 func combineSaltAndHash(pw: String, salt: Data) throws -> Data {
-    guard let passwordData = pw.data(using: .utf8) else {
+    guard var passwordData = pw.data(using: .utf8) else {
         throw Abort(.internalServerError, reason: "Error resolving password")
     }
     
-    let hashedData = SHA256.hash(data: salt).map { el in
+    passwordData.append(salt)
+    
+    let hashedData = SHA256.hash(data: passwordData).map { el in
         return el as UInt8
     }
     

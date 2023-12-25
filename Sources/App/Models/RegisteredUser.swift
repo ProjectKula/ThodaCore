@@ -49,7 +49,7 @@ final class RegisteredUser: Model, Content {
 
     init() { }
 
-    init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = 0) {
+    init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = nil) {
         self.id = id
         self.name = name
         self.phone = phone
@@ -61,17 +61,5 @@ final class RegisteredUser: Model, Content {
         self.bio = bio
         self.intakeYear = intakeYear
         self.regNo = regNo
-    }
-    
-    convenience init(user: UnregisteredUser) throws {
-        self.init(
-            id: try user.requireID(),
-            name: user.name,
-            phone: user.phone,
-            email: user.email,
-            branch: user.branch,
-            gender: user.gender,
-            intakeYear: extractYearFromEmail(email: user.email) ?? 2023
-        )
     }
 }
