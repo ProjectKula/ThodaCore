@@ -21,6 +21,12 @@ final class UserCredentials: Model, Content {
     @Field(key: "hash")
     var hash: Data
     
+    @Field(key: "pw")
+    var hasPassword: Bool
+    
+    @Field(key: "google")
+    var hasGoogle: Bool
+    
     init() { }
     
     init(id: String, pw: String) throws {
@@ -29,12 +35,22 @@ final class UserCredentials: Model, Content {
         saltData.append(contentsOf: [UInt8].random(count: 16))
         self.salt = saltData
         self.hash = try combineSaltAndHash(pw: pw, salt: self.salt)
+        self.hasPassword = true
+        self.hasGoogle = false
     }
     
-    init(id: String, salt: Data, hash: Data) {
+    init(id: String, salt: Data, hash: Data, hasPassword: Bool = true, hasGoogle: Bool = false) {
         self.id = id
         self.salt = salt
         self.hash = hash
+        self.hasPassword = hasPassword
+        self.hasGoogle = hasGoogle
+    }
+    
+    fileprivate static var noData: Data = "0".data(using: .utf8)!
+    
+    convenience init(id: String, hasGoogle: Bool = false) {
+        self.init(id: id, salt: Self.noData, hash: Self.noData, hasPassword: false, hasGoogle: hasGoogle)
     }
 }
 

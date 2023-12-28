@@ -19,6 +19,7 @@ struct AppConfig {
     static let redisHost = Environment.get("REDIS_HOST") ?? "127.0.0.1"
     static let signupCodeExpireTime = Environment.get("SIGNUP_CODE_EXPIRE_TIME").flatMap(Int.init(_:)) ?? 600
     static let jwtSigningKey = Environment.get("JWT_SIGNING_KEY") ?? "secret"
+    static let googleWorkspaceDomain = Environment.get("GOOGLE_WORKSPACE_DOMAIN") ?? "rvce.edu.in"
 }
 
 // configures your application
@@ -56,6 +57,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateRegisteredUser())
     app.migrations.add(CreateUserAuth())
     
+    app.jwt.google.gSuiteDomainName = AppConfig.googleWorkspaceDomain
     app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
 
     // register routes
