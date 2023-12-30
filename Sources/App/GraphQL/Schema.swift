@@ -37,10 +37,10 @@ let schema = try! Schema<Resolver, Request> {
     }
 
     Query {
-        Field("allUsers", at: Resolver.getAllUsers)
+//        Field("allUsers", at: Resolver.getAllUsers)
         Field("allRegisteredUsers", at: Resolver.getAllRegisteredUsers)
         Field("getRegisteredUser", at: Resolver.getRegisteredUser) {
-            Argument("id", at: \.id)
+            Argument("regNo", at: \.regNo)
         }
         Field("getUser", at: Resolver.getUser) {
             Argument("id", at: \.id)

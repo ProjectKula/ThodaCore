@@ -10,7 +10,7 @@ import Fluent
 import Vapor
 
 struct GetRegisteredUserArgs: Codable {
-    let id: String
+    let regNo: Int
 }
 
 final class Resolver {
@@ -33,7 +33,7 @@ final class Resolver {
     
     func getRegisteredUser(request: Request, arguments: GetRegisteredUserArgs) throws -> EventLoopFuture<RegisteredUser> {
         RegisteredUser.query(on: request.db)
-            .filter(\.$id == arguments.id)
+            .filter(\.$regNo == arguments.regNo)
             .first().unwrap(or: Abort(.notFound))
     }
 }
