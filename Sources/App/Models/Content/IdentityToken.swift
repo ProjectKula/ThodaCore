@@ -55,7 +55,7 @@ struct AuthResponseBody: Content {
 
 func refreshAccessTokenResponse(req: Request) async throws -> AuthResponseBody {
     let tokenPair = try await refreshAccessToken(req: req)
-    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970.rounded())
+    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970 * 1000)
     return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1, expiresAt: expiresAt)
 }
 
@@ -99,7 +99,7 @@ func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
 
 func generateTokenPairResponse(req: Request, id: String) async throws -> AuthResponseBody {
     let tokenPair = try await generateStoredTokenPair(req: req, id: id)
-    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970.rounded())
+    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970 * 1000)
     return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1, expiresAt: expiresAt)
 }
 
