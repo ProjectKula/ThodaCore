@@ -8,6 +8,7 @@
 import JWT
 import Vapor
 import Redis
+import Foundation
 
 open class IdentityToken: JWTPayload {
     enum CodingKeys: String, CodingKey {
@@ -49,11 +50,13 @@ struct RefreshTokenRequest: Content {
 struct AuthResponseBody: Content {
     let accessToken: String
     let refreshToken: String
+    let expiresAt: Int64
 }
 
 func refreshAccessTokenResponse(req: Request) async throws -> AuthResponseBody {
     let tokenPair = try await refreshAccessToken(req: req)
-    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1)
+    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970.rounded())
+    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1, expiresAt: expiresAt)
 }
 
 func refreshAccessToken(req: Request) async throws -> (IdentityToken, String) {
@@ -96,7 +99,8 @@ func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
 
 func generateTokenPairResponse(req: Request, id: String) async throws -> AuthResponseBody {
     let tokenPair = try await generateStoredTokenPair(req: req, id: id)
-    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1)
+    let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970.rounded())
+    return .init(accessToken: try req.jwt.sign(tokenPair.0), refreshToken: tokenPair.1, expiresAt: expiresAt)
 }
 
 func generateStoredTokenPair(req: Request, id: String) async throws -> (IdentityToken, String) {
