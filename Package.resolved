@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GraphQLSwift/Graphiti.git",
       "state" : {
-        "revision" : "af903a243862c6427935677b91f67df0c21f2a71",
-        "version" : "0.26.0"
+        "revision" : "42623e2f7c717c54dfe2f9b595d87437aafbf9a3",
+        "version" : "1.14.0"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/alexsteinerde/graphql-kit.git",
       "state" : {
-        "revision" : "73485f3ae2d200431ad6cd48e998eabc66214b64",
-        "version" : "2.4.0"
+        "branch" : "master",
+        "revision" : "e17518fb0ef1073876fadafd15cc3a5dba1e56aa"
       }
     },
     {

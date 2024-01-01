@@ -4,13 +4,13 @@ import PackageDescription
 let package = Package(
     name: "ThodaCore",
     platforms: [
-       .macOS(.v11)
+       .macOS(.v12)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.8.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.7.2"),
-        .package(url: "https://github.com/alexsteinerde/graphql-kit.git",from: "2.0.0"),
+        .package(url: "https://github.com/alexsteinerde/graphql-kit.git", branch: "master"),
         .package(url: "https://github.com/Mikroservices/Smtp.git", from: "3.0.0"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/redis.git", from: "4.0.0")
