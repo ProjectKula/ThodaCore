@@ -36,7 +36,7 @@ struct SignupController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid request: \(error.localizedDescription)")
         }
         
-        let user = try await Resolver.instance.getUser(request: req, arguments: args).get()
+        let user = try await Resolver.instance.getUser(request: req, arguments: args)
         
         if await (try RegisteredUser.query(on: req.db).filter(\.$id == args.id).first() != nil) {
             throw Abort(.conflict, reason: "User already exists")
@@ -132,7 +132,7 @@ struct SignupController: RouteCollection {
             throw Abort(.badRequest, reason: "Invalid bearer token")
         }
         
-        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email)).get()
+        let user = try await Resolver.instance.getUser(request: req, arguments: .init(id: payload.id, email: payload.email))
         let userAuth: UserCredentials = try .init(id: payload.id, pw: pwBody.password)
         let registeredUser = try InitialRegisteredUser(user: user)
         

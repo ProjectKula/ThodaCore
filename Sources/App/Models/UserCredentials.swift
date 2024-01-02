@@ -40,7 +40,7 @@ final class UserCredentials: Model, Content {
         self.hash = try combineSaltAndHash(pw: pw, salt: self.salt)
         self.hasPassword = true
         self.hasGoogle = false
-        self.perm = createPermissionsInteger([.identity])
+        self.perm = Permissions.create([.identity])
     }
     
     init(id: String, salt: Data, hash: Data, hasPassword: Bool = true, hasGoogle: Bool = false) {
@@ -49,7 +49,7 @@ final class UserCredentials: Model, Content {
         self.hash = hash
         self.hasPassword = hasPassword
         self.hasGoogle = hasGoogle
-        self.perm = createPermissionsInteger([.identity])
+        self.perm = Permissions.create([.identity])
     }
     
     fileprivate static var noData: Data = "0".data(using: .utf8)!
