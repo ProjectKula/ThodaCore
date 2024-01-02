@@ -5,6 +5,7 @@
 //  Created by Shrish Deshpande on 08/12/23.
 //
 
+import Foundation
 import Vapor
 import Graphiti
 
@@ -32,19 +33,24 @@ let schema = try! Schema<Resolver, Request> {
         Field("branch", at: \.branch)
         Field("gender", at: \.gender)
         Field("pronouns", at: \.pronouns)
-        Field("dateRegistered", at: \.dateRegistered)
+        Field("dateRegistered", at: \.dateRegistered?.timeIntervalSince1970)
         Field("bio", at: \.bio)
     }
 
     Query {
         Field("unregisteredUsers", at: Resolver.getAllUsers)
-        Field("users", at: Resolver.getAllRegisteredUsers)
-        Field("unregisteredUser", at: Resolver.getRegisteredUser) {
-            Argument("regNo", at: \.regNo)
-        }
-        Field("user", at: Resolver.getUser) {
+        Field("unregisteredUser", at: Resolver.getUser) {
             Argument("id", at: \.id)
             Argument("email", at: \.email)
         }
+        
+        Field("users", at: Resolver.getAllRegisteredUsers)
+        Field("user", at: Resolver.getRegisteredUser) {
+            Argument("regNo", at: \.regNo)
+        }
     }
+}
+
+extension TimeInterval {
+    
 }

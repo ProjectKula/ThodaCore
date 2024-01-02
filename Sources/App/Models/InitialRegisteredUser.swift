@@ -55,7 +55,7 @@ final class InitialRegisteredUser: Model, Content {
     convenience init(user: UnregisteredUser) throws {
         self.init(
             id: try user.requireID(),
-            name: user.name,
+            name: user.name.capitalized,
             phone: user.phone,
             email: user.email,
             branch: user.branch,
