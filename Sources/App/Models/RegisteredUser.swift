@@ -8,11 +8,11 @@
 import Vapor
 import Fluent
 
-final class RegisteredUser: Model, Content {
-    static let schema = "registeredUsers"
+public final class RegisteredUser: Model, Content {
+    public static let schema = "registeredUsers"
 
     @ID(custom: "id", generatedBy: .user)
-    var id: String?
+    public var id: String?
 
     @Field(key: "name")
     var name: String
@@ -47,9 +47,9 @@ final class RegisteredUser: Model, Content {
     @Field(key: "reg_no")
     var regNo: Int?
 
-    init() { }
+    public init() { }
 
-    init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = nil) {
+    public init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = nil) {
         self.id = id
         self.name = name
         self.phone = phone
