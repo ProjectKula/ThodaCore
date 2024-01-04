@@ -80,9 +80,11 @@ func refreshAccessToken(req: Request) async throws -> (IdentityToken, String) {
     let oldToken = try req.jwt.verify(as: UnverifiedIdentityToken.self)
     try await blacklistToken(req: req, token: oldToken)
     let body = try req.content.decode(RefreshTokenRequest.self)
-    guard let realToken = try await req.redis.get(.init(stringLiteral: body.refreshToken), asJSON: String.self) else {
+    guard let realToken = try await req.redis.get(.init(stringLiteral: body.refreshToken), as: String.self).get() else {
+        req.logger.error("User '\(oldToken.id)' tried to refresh with a nonexistant token!")
         throw Abort(.badRequest, reason: "Invalid refresh token")
     }
+
     if realToken != oldToken.token {
         _ = try? await req.redis.delete([.init(stringLiteral: body.refreshToken)]).get()
         req.logger.error("User '\(oldToken.id)' tried to refresh an invalid token!")
@@ -97,17 +99,17 @@ func refreshAccessToken(req: Request) async throws -> (IdentityToken, String) {
 @inlinable
 func blacklistToken(req: Request, token: some IdentityToken) async throws {
     let interval = token.expiration.value.timeIntervalSinceNow
-    if interval.sign == .minus {
+    if interval <= 0 {
         return
     }
     // Key : Value :: access token : "no"
-    try await req.redis.setex(.init(stringLiteral: token.token), toJSON: "no", expirationInSeconds: abs(Int(interval)))
+    try await req.redis.setex(.init(stringLiteral: token.token), to: "no", expirationInSeconds: abs(Int(interval))).get()
 }
 
 func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
     let payload = try req.jwt.verify(as: IdentityToken.self)
     
-    if try await req.redis.get(.init(stringLiteral: payload.token)).get().isNull {
+    if !(try await req.redis.get(.init(stringLiteral: payload.token)).get().isNull) {
         throw Abort(.unauthorized, reason: "Blacklisted access token")
     }
     
@@ -122,7 +124,7 @@ func generateTokenPairResponse(req: Request, id: String) async throws -> AuthRes
 
 func generateStoredTokenPair(req: Request, id: String) async throws -> (IdentityToken, String) {
     let tokenPair = try await generateTokenPair(req: req, id: id)
-    try await req.redis.set(.init(stringLiteral: tokenPair.1), to: id).get()
+    try await req.redis.set(.init(stringLiteral: tokenPair.1), to: tokenPair.0.token).get()
     return tokenPair
 }
 
@@ -133,7 +135,7 @@ func generateTokenPair(req: Request, id: String) async throws -> (IdentityToken,
 
 func generateStoredTokenPair(req: Request, previous: IdentityToken) async throws -> (IdentityToken, String) {
     let tokenPair = try await generateTokenPair(previous: previous)
-    try await req.redis.set(.init(stringLiteral: tokenPair.1), to: tokenPair.0.id.value).get()
+    try await req.redis.set(.init(stringLiteral: tokenPair.1), to: tokenPair.0.token).get()
     return tokenPair
 }
 
