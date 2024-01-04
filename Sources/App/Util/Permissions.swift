@@ -10,9 +10,9 @@ import Vapor
 import Fluent
 
 enum Permissions: Int {
-    case admin = 0b1
-    case identity = 0b10
-    case query = 0b100
+    case admin = 0b1     // All permissions
+    case identity = 0b10 // See identity of self and others
+    case query = 0b100   // Query multiple users and/or unregistered users
     
     static func create(_ perms: [Permissions]) -> Int {
         perms.reduce(0) { $0 | $1.rawValue }

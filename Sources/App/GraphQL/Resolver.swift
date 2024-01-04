@@ -22,7 +22,7 @@ final class Resolver {
     }
     
     func getAllRegisteredUsers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-        try await assertPermission(request: request, .query)
+        try await assertPermission(request: request, [.query, .identity])
         return try await RegisteredUser.query(on: request.db).all()
     }
     
@@ -37,6 +37,7 @@ final class Resolver {
     }
     
     func getRegisteredUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> RegisteredUser {
+        try await assertPermission(request: request, .identity)
         return try await RegisteredUser.query(on: request.db)
             .filter(\.$regNo == arguments.regNo)
             .first()
