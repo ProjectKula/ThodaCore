@@ -13,7 +13,7 @@ struct AppConfig {
     static let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "12345678"
     static let databaseName = Environment.get("DATABASE_NAME") ?? "postgres"
     static let defaultEmail = Environment.get("EMAIL_NAME") ?? "postalkings.postcrossing@gmail.com"
-    static let smtpHost = Environment.get("EMAIL_SMTP") ?? "smtp.mail.me.com"
+    static let smtpHost = Environment.get("EMAIL_SMTP") ?? "smtp.gmail.com"
     static let smtpPassword = Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
     static let smtpPort = Environment.get("SMTP_PORT").flatMap(Int.init(_:)) ?? 587
     static let redisHost = Environment.get("REDIS_HOST") ?? "127.0.0.1"
