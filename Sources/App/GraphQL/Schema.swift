@@ -49,8 +49,8 @@ let schema = try! Schema<Resolver, Request> {
             Argument("regNo", at: \.regNo)
         }
     }
-}
-
-extension TimeInterval {
     
+    Mutation {
+        Field("editUserInfo", at: Resolver.editUserInfo)
+    }
 }

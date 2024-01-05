@@ -15,7 +15,6 @@ struct CreateUserAuth: Migration {
             .field("hash", .data, .required)
             .field("pw", .bool, .required)
             .field("google", .bool, .required)
-            .field("perm", .int, .required)
             .unique(on: "salt")
             .create()
     }

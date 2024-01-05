@@ -17,6 +17,7 @@ open class IdentityToken: JWTPayload {
         case regNo = "rgn"
         case expiration = "exp"
         case token = "tkn"
+        case perm = "perm"
         case issuer = "iss"
     }
     
@@ -24,6 +25,7 @@ open class IdentityToken: JWTPayload {
         self.expiration = .init(value: .init(timeIntervalSinceNow: 86400))
         self.id = .init(stringLiteral: id)
         self.token = [UInt8].random(count: 64).base64
+        self.perm = Permissions.create([.identity, .editProfile])
         self.regNo = regNo
     }
     
@@ -46,6 +48,8 @@ open class IdentityToken: JWTPayload {
     public var expiration: ExpirationClaim
     
     public var token: String
+    
+    public var perm: Int
     
     public var issuer: IssuerClaim = "thodaCore"
     
