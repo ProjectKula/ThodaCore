@@ -61,7 +61,7 @@ struct GoogleController: RouteCollection {
             }
         }
         
-        return try await generateTokenPairResponse(req: req, id: user.requireID())
+        return try await generateTokenPairResponse(req: req, collegeId: user.requireID())
     }
     
     func linkGoogleAccount(req: Request) async throws -> GoogleLinkSuccess {
@@ -77,8 +77,14 @@ struct GoogleController: RouteCollection {
         
         let identityToken = try req.jwt.verify(idTokenString, as: IdentityToken.self)
         
+        let user = try await RegisteredUser.query(on: req.db)
+            .filter(\.$id == identityToken.id)
+            .first()
+            .unwrap(orError: Abort(.notFound, reason: "User not registered"))
+            .get()
+        
         let userCred: UserCredentials = try await UserCredentials.query(on: req.db)
-            .filter(\.$id == identityToken.id.value)
+            .filter(\.$id == user.$collegeId.id)
             .first()
             .unwrap(orError: Abort(.notFound, reason: "User not registered"))
             .get()
@@ -86,12 +92,6 @@ struct GoogleController: RouteCollection {
         if userCred.hasGoogle {
             throw Abort(.forbidden, reason: "Google account already linked")
         }
-        
-        let user: UnregisteredUser = try await UnregisteredUser.query(on: req.db)
-            .filter(\.$id == identityToken.id.value)
-            .first()
-            .unwrap(orError: Abort(.notFound, reason: "User does not exist"))
-            .get()
         
         if user.email.lowercased() != email.lowercased() {
             throw Abort(.badRequest, reason: "Email mismatch")

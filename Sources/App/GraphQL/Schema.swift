@@ -16,7 +16,7 @@ let schema = try! Schema<Resolver, Request> {
     Scalar(Date.self)
 
     Type(UnregisteredUser.self) {
-        Field("id", at: \.id)
+        Field("collegeId", at: \.id)
         Field("name", at: \.name)
         Field("phone", at: \.phone)
         Field("email", at: \.email)
@@ -25,7 +25,7 @@ let schema = try! Schema<Resolver, Request> {
     }
     
     Type(RegisteredUser.self) {
-        Field("id", at: \.id)
+        Field("collegeId", at: \.id)
         Field("name", at: \.name)
         Field("phone", at: \.phone)
         Field("email", at: \.email)
@@ -46,7 +46,7 @@ let schema = try! Schema<Resolver, Request> {
         
         Field("users", at: Resolver.getAllRegisteredUsers)
         Field("user", at: Resolver.getRegisteredUser) {
-            Argument("regNo", at: \.regNo)
+            Argument("id", at: \.id)
         }
     }
     

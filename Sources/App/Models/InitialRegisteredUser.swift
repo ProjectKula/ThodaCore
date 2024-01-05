@@ -16,7 +16,7 @@ import Fluent
 final class InitialRegisteredUser: Model, Content {
     static let schema = "registeredUsers"
 
-    @ID(custom: "id", generatedBy: .user)
+    @ID(custom: "collegeId", generatedBy: .user)
     var id: String?
 
     @Field(key: "name")

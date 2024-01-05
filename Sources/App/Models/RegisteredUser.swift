@@ -12,7 +12,10 @@ public final class RegisteredUser: Model, Content {
     public static let schema = "registeredUsers"
 
     @ID(custom: "id", generatedBy: .user)
-    public var id: String?
+    public var id: Int?
+    
+    @Parent(key: "collegeId")
+    var collegeId: UnregisteredUser
 
     @Field(key: "name")
     var name: String
@@ -43,14 +46,11 @@ public final class RegisteredUser: Model, Content {
     
     @Field(key: "intake_year")
     var intakeYear: Int
-    
-    @Field(key: "reg_no")
-    var regNo: Int?
 
     public init() { }
 
-    public init(id: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, regNo: Int? = nil) {
-        self.id = id
+    public init(collegeId: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, id: Int? = nil) {
+        self.$collegeId.id = collegeId
         self.name = name
         self.phone = phone
         self.email = email
@@ -60,6 +60,6 @@ public final class RegisteredUser: Model, Content {
         self.pronouns = pronouns
         self.bio = bio
         self.intakeYear = intakeYear
-        self.regNo = regNo
+        self.id = id
     }
 }

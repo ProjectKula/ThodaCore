@@ -10,7 +10,7 @@ import Graphiti
 import Fluent
 
 struct EditUserInfoArgs: Codable {
-    var regNo: Int
+    var id: Int
     var gender: String?
     var bio: String?
     var pronouns: String?
@@ -21,17 +21,17 @@ extension Resolver {
     func editUserInfo(request: Request, arguments: EditUserInfoArgs) async throws -> RegisteredUser {
         let token = try await getAndVerifyAccessToken(req: request)
         
-        if token.regNo == arguments.regNo {
+        if token.id == arguments.id {
             try await assertPermission(request: request, .editProfile)
-        } else if (!token.regNo.hasPermission(.admin)) {
-            request.logger.error("User \(token.regNo) tried to edit user info of \(arguments.regNo)")
+        } else if (!token.perm.hasPermission(.admin)) {
+            request.logger.error("User \(token.id) tried to edit user info of \(arguments.id)")
             throw Abort(.forbidden, reason: "Mismatch in registration number")
         }
         
         guard let user = try await RegisteredUser.query(on: request.db)
-            .filter(\.$regNo == arguments.regNo)
+            .filter(\.$id == arguments.id)
             .first() else {
-            throw Abort(.notFound, reason: "User \(arguments.regNo) not found")
+            throw Abort(.notFound, reason: "User \(arguments.id) not found")
         }
         
         user.setValue(\.gender, arguments.gender, orElse: "X")

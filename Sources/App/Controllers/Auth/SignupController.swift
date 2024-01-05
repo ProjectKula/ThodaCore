@@ -43,7 +43,7 @@ struct SignupController: RouteCollection {
             .unwrap(or: Abort(.notFound, reason: "User does not exist"))
             .get()
         
-        if await (try RegisteredUser.query(on: req.db).filter(\.$id == args.id).first() != nil) {
+        if await (try RegisteredUser.query(on: req.db).filter(\.$collegeId.$id == args.id).first() != nil) {
             throw Abort(.conflict, reason: "User already exists")
         }
         
@@ -155,7 +155,7 @@ struct SignupController: RouteCollection {
             throw Abort(.internalServerError, reason: "Database error")
         }
         
-        return try await generateTokenPairResponse(req: req, id: payload.id)
+        return try await generateTokenPairResponse(req: req, collegeId: payload.id)
     }
     
     @inlinable

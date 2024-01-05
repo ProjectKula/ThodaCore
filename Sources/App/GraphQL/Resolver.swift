@@ -10,7 +10,7 @@ import Fluent
 import Vapor
 
 struct GetRegisteredUserArgs: Codable {
-    let regNo: Int
+    let id: Int
 }
 
 final class Resolver {
@@ -39,7 +39,7 @@ final class Resolver {
     func getRegisteredUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> RegisteredUser {
         try await assertPermission(request: request, .identity)
         return try await RegisteredUser.query(on: request.db)
-            .filter(\.$regNo == arguments.regNo)
+            .filter(\.$id == arguments.id)
             .first()
             .unwrap(or: Abort(.notFound))
             .get()

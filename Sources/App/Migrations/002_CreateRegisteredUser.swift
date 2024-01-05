@@ -10,7 +10,7 @@ import Fluent
 struct CreateRegisteredUser: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("registeredUsers")
-            .field("id", .string, .required)
+            .field("collegeId", .string, .required, .references("users", "id"))
             .field("name", .string, .required)
             .field("phone", .string, .required)
             .field("email", .string, .required)
@@ -21,8 +21,8 @@ struct CreateRegisteredUser: Migration {
             .field("date_registered", .datetime, .required)
             .field("bio", .string)
             .field("intake_year", .int, .required)
-            .field("reg_no", .int, .custom("GENERATED ALWAYS AS IDENTITY"))
-            .unique(on: "id")
+            .field("id", .int, .custom("GENERATED ALWAYS AS IDENTITY"))
+            .unique(on: "collegeId")
             .unique(on: "email")
             .create()
     }
