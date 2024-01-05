@@ -14,8 +14,8 @@ final class Post: Model, Content {
     @ID(custom: "id", generatedBy: .user)
     var id: String?
     
-    @Field(key: "user")
-    var user: Int
+    @Parent(key: "userId")
+    var user: RegisteredUser
     
     @Field(key: "content")
     var content: String
@@ -30,9 +30,9 @@ final class Post: Model, Content {
     }
     
     // TODO: attachments (media), comments enabled, edited
-    init(id: String, regNo user: Int, content: String) {
+    init(id: String, userId: Int, content: String) {
         self.id = id
-        self.user = user
+        self.$user.id = userId
         self.content = content
         self.deleted = false
     }

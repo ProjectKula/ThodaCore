@@ -24,6 +24,7 @@ struct CreateRegisteredUser: Migration {
             .field("id", .int, .custom("GENERATED ALWAYS AS IDENTITY"))
             .unique(on: "collegeId")
             .unique(on: "email")
+            .unique(on: "id")
             .create()
     }
 

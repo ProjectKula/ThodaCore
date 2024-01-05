@@ -11,7 +11,7 @@ struct CreatePosts: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("posts")
             .field("id", .string, .required)
-            .field("user", .int, .required, .references("registeredUsers", "regNo"))
+            .field("userId", .int, .required, .references("registeredUsers", "id"))
             .field("content", .string, .required)
             .field("created_at", .datetime, .required)
             .field("deleted", .bool, .required)
