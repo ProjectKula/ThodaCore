@@ -63,7 +63,7 @@ extension Resolver {
         
         if let creator = arguments.creator {
             if token.id == arguments.creator {
-                try await assertPermission(request: request, .editProfile)
+                try await assertPermission(request: request, .createPosts)
             } else if (!token.perm.hasPermission(.admin)) {
                 request.logger.error("User \(token.id) tried to create a post by \(creator)")
                 throw Abort(.forbidden, reason: "Mismatch in registration number")
@@ -75,6 +75,40 @@ extension Resolver {
         
         let post = Post(userId: creatorId, content: arguments.content)
         try await post.create(on: request.db)
+        return post
+    }
+    
+    func deletePost(request: Request, arguments: StringIdArgs) async throws -> Post {
+        let token = try await getAndVerifyAccessToken(req: request)
+        let post = try await Post.query(on: request.db).filter(\.$id == arguments.id).first()
+            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
+        
+        if token.id == post.$creator.id {
+            try await assertPermission(request: request, .deletePosts)
+        } else if (!token.perm.hasPermission(.admin)) {
+            request.logger.error("User \(token.id) tried to delete a post by \(post.$creator.id)")
+            throw Abort(.forbidden, reason: "Not post creator")
+        }
+        
+        post.deleted = true
+        try await post.update(on: request.db)
+        return post
+    }
+    
+    func restorePost(request: Request, arguments: StringIdArgs) async throws -> Post {
+        let token = try await getAndVerifyAccessToken(req: request)
+        let post = try await Post.query(on: request.db).filter(\.$id == arguments.id).first()
+            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
+        
+        if token.id == post.$creator.id {
+            try await assertPermission(request: request, .deletePosts)
+        } else if (!token.perm.hasPermission(.admin)) {
+            request.logger.error("User \(token.id) tried to restore a post by \(post.$creator.id)")
+            throw Abort(.forbidden, reason: "Not post creator")
+        }
+        
+        post.deleted = false
+        try await post.update(on: request.db)
         return post
     }
 }

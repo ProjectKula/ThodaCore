@@ -26,7 +26,7 @@ final class Resolver {
     }
     
     func getAllRegisteredUsers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-        try await assertPermission(request: request, [.query, .identity])
+        try await assertPermission(request: request, [.query, .read])
         return try await RegisteredUser.query(on: request.db).all()
     }
     
@@ -41,7 +41,7 @@ final class Resolver {
     }
     
     func getRegisteredUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> RegisteredUser {
-        try await assertPermission(request: request, .identity)
+        try await assertPermission(request: request, .read)
         return try await RegisteredUser.query(on: request.db)
             .filter(\.$id == arguments.id)
             .first()
@@ -50,14 +50,14 @@ final class Resolver {
     }
     
     func getPostsByUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> [Post] {
-        try await assertPermission(request: request, .identity)
+        try await assertPermission(request: request, .read)
         return try await Post.query(on: request.db)
             .filter(\.$creator.$id == arguments.id)
             .all()
     }
     
     func getPostById(request: Request, arguments: StringIdArgs) async throws -> [Post] {
-        try await assertPermission(request: request, .identity)
+        try await assertPermission(request: request, .read)
         return try await Post.query(on: request.db)
             .filter(\.$id == arguments.id)
             .all()

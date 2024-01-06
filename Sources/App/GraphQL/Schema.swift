@@ -65,7 +65,22 @@ let schema = try! Schema<Resolver, Request> {
     }
     
     Mutation {
-        Field("editUserInfo", at: Resolver.editUserInfo)
-        Field("createPost", at: Resolver.createPost)
+        Field("editUserInfo", at: Resolver.editUserInfo) {
+            Argument("id", at: \.id)
+            Argument("gender", at: \.gender)
+            Argument("bio", at: \.bio)
+            Argument("pronouns", at: \.pronouns)
+            Argument("personalEmail", at: \.personalEmail)
+        }
+        Field("createPost", at: Resolver.createPost) {
+            Argument("creator", at: \.creator)
+            Argument("content", at: \.content)
+        }
+        Field("deletePost", at: Resolver.deletePost) {
+            Argument("id", at: \.id)
+        }
+        Field("restorePost", at: Resolver.restorePost) {
+            Argument("id", at: \.id)
+        }
     }
 }

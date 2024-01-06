@@ -10,12 +10,15 @@ import Vapor
 import Fluent
 
 enum Permissions: Int {
-    case admin = 0b1          // All permissions
-    case identity = 0b10      // See identity of self and others
-    case query = 0b100        // Query multiple users and/or unregistered users
-    case editProfile = 0b1000 // Edit profile
-    case viewPosts = 0b10000  // Create posts
+    case admin             = 0b1 // All permissions
+    case read             = 0b10 // Read all publicly availble data
+    case identity        = 0b100 // Read email, phone TODO: implement this
+    case query          = 0b1000 // Query multiple users and/or unregistered users
+    case editProfile   = 0b10000 // Edit profile
+    case createPosts  = 0b100000 // Create Posts
+    case deletePosts = 0b1000000 // Delete and restore posts
     
+    static let defaultPermission: Int = create([.read, .editProfile, .createPosts, .deletePosts])
     
     static func create(_ perms: [Permissions]) -> Int {
         perms.reduce(0) { $0 | $1.rawValue }
