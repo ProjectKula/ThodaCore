@@ -22,6 +22,11 @@ struct CreatePostArgs: Codable {
     var content: String
 }
 
+struct LikePostArgs: Codable {
+    var user: Int?
+    var post: String
+}
+
 extension Resolver {
     func editUserInfo(request: Request, arguments: EditUserInfoArgs) async throws -> RegisteredUser {
         let token = try await getAndVerifyAccessToken(req: request)
@@ -111,6 +116,28 @@ extension Resolver {
         try await post.update(on: request.db)
         return post
     }
+    
+    func likePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
+        try await assertPermission(request: request, .createPosts)
+        let token = try await getAndVerifyAccessToken(req: request)
+        if arguments.user != token.id {
+            try await assertPermission(request: request, .admin)
+        }
+        let lp: LikedPost = .init(postId: arguments.post, userId: arguments.user ?? token.id)
+        try await lp.create(on: request.db)
+        return lp
+    }
+    
+//    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
+//        try await assertPermission(request: request, .createPosts)
+//        let token = try await getAndVerifyAccessToken(req: request)
+//        if arguments.user != token.id {
+//            try await assertPermission(request: request, .admin)
+//        }
+//        let lp = LikedPost.
+//        try await lp.delete(on: request.db)
+//        return lp
+//    }
 }
 
 extension RegisteredUser {
