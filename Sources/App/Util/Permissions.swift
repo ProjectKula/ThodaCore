@@ -15,7 +15,7 @@ enum Permissions: Int {
     case identity        = 0b100 // Read email, phone TODO: implement this
     case query          = 0b1000 // Query multiple users and/or unregistered users
     case editProfile   = 0b10000 // Edit profile
-    case createPosts  = 0b100000 // Create Posts
+    case createPosts  = 0b100000 // Create Posts, like posts
     case deletePosts = 0b1000000 // Delete and restore posts
     
     static let defaultPermission: Int = create([.read, .editProfile, .createPosts, .deletePosts])

@@ -42,11 +42,16 @@ final class Resolver {
     
     func getRegisteredUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> RegisteredUser {
         try await assertPermission(request: request, .read)
-        return try await RegisteredUser.query(on: request.db)
+        let user = try await RegisteredUser.query(on: request.db)
             .filter(\.$id == arguments.id)
             .first()
             .unwrap(or: Abort(.notFound))
             .get()
+        if !(try await checkPermission(request: request, .identity)) {
+            user.personalEmail = nil
+            user.phone = ""
+        }
+        return user
     }
     
     func getPostsByUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> [Post] {
