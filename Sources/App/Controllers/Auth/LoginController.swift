@@ -27,7 +27,8 @@ struct LoginController: RouteCollection {
         if try await authUserWithPassword(req: req, args: params) {
             return try await generateTokenPairResponse(req: req, collegeId: params.id)
         } else {
-            throw Abort(.badRequest, reason: "Invalid credentials")
+            req.logger.warning("User '\(params.id)' tried to login with invalid credentials")
+            throw Abort(.notFound, reason: "Invalid id \(params.id)")
         }
     }
     

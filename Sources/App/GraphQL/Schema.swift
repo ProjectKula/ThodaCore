@@ -36,6 +36,14 @@ let schema = try! Schema<Resolver, Request> {
         Field("dateRegistered", at: \.dateRegistered?.timeIntervalSince1970)
         Field("bio", at: \.bio)
     }
+    
+    Type(Post.self) {
+        Field("id", at: \.id)
+        Field("creator", at: \.creator)
+        Field("content", at: \.content)
+        Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
+        Field("deleted", at: \.deleted)
+    }
 
     Query {
         Field("unregisteredUsers", at: Resolver.getAllUsers)
@@ -48,9 +56,16 @@ let schema = try! Schema<Resolver, Request> {
         Field("user", at: Resolver.getRegisteredUser) {
             Argument("id", at: \.id)
         }
+        Field("posts", at: Resolver.getPostsByUser) {
+            Argument("creator", at: \.id)
+        }
+        Field("post", at: Resolver.getPostsByUser) {
+            Argument("id", at: \.id)
+        }
     }
     
     Mutation {
         Field("editUserInfo", at: Resolver.editUserInfo)
+        Field("createPost", at: Resolver.createPost)
     }
 }

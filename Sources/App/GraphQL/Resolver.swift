@@ -13,6 +13,10 @@ struct GetRegisteredUserArgs: Codable {
     let id: Int
 }
 
+struct StringIdArgs: Codable {
+    let id: String
+}
+
 final class Resolver {
     static let instance: Resolver = .init()
     
@@ -43,5 +47,19 @@ final class Resolver {
             .first()
             .unwrap(or: Abort(.notFound))
             .get()
+    }
+    
+    func getPostsByUser(request: Request, arguments: GetRegisteredUserArgs) async throws -> [Post] {
+        try await assertPermission(request: request, .identity)
+        return try await Post.query(on: request.db)
+            .filter(\.$creator.$id == arguments.id)
+            .all()
+    }
+    
+    func getPostById(request: Request, arguments: StringIdArgs) async throws -> [Post] {
+        try await assertPermission(request: request, .identity)
+        return try await Post.query(on: request.db)
+            .filter(\.$id == arguments.id)
+            .all()
     }
 }

@@ -10,9 +10,9 @@ import Vapor
 import Redis
 
 func generateRandomConfirmationCode() -> String {
-    var randomCode = ""
+    var randomCode = String(Int.random(in: 1...9))
 
-    for _ in 1...6 {
+    for _ in 1...5 {
         let randomDigit = Int.random(in: 0...9)
         randomCode += "\(randomDigit)"
     }

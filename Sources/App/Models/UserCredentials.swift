@@ -58,7 +58,7 @@ func authUserWithPassword(req: Request, args: LoginAuthRequest) async throws -> 
     let auth = try await UserCredentials.query(on: req.db)
         .filter(\.$id == args.id)
         .first()
-        .unwrap(orError: Abort(.notFound, reason: "Could not find user with id \(args.id)"))
+        .unwrap(orError: Abort(.notFound, reason: "Invalid id \(args.id)"))
         .get()
     let hash = try combineSaltAndHash(pw: args.pw, salt: auth.salt)
     return hash == auth.hash
