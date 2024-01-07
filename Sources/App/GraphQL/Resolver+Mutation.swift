@@ -128,16 +128,21 @@ extension Resolver {
         return lp
     }
     
-//    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
-//        try await assertPermission(request: request, .createPosts)
-//        let token = try await getAndVerifyAccessToken(req: request)
-//        if arguments.user != token.id {
-//            try await assertPermission(request: request, .admin)
-//        }
-//        let lp = LikedPost.
-//        try await lp.delete(on: request.db)
-//        return lp
-//    }
+    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
+        try await assertPermission(request: request, .createPosts)
+        let token = try await getAndVerifyAccessToken(req: request)
+        if arguments.user != token.id {
+            try await assertPermission(request: request, .admin)
+        }
+        let lp = try await LikedPost.query(on: request.db)
+            .filter(\.$post.$id == arguments.post)
+            .filter(\.$user.$id == (arguments.user ?? token.id))
+            .first()
+            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID"))
+            .get()
+        try await lp.delete(on: request.db)
+        return lp
+    }
 }
 
 extension RegisteredUser {

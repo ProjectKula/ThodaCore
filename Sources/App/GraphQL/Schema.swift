@@ -82,5 +82,13 @@ let schema = try! Schema<Resolver, Request> {
         Field("restorePost", at: Resolver.restorePost) {
             Argument("id", at: \.id)
         }
+        Field("likePost", at: Resolver.likePost) {
+            Argument("user", at: \.user)
+            Argument("post", at: \.post)
+        }
+        Field("unlikePost", at: Resolver.unlikePost) {
+            Argument("user", at: \.user)
+            Argument("post", at: \.post)
+        }
     }
 }
