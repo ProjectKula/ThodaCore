@@ -44,6 +44,11 @@ let schema = try! Schema<Resolver, Request> {
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("deleted", at: \.deleted)
     }
+    
+    Type(LikedPost.self) {
+        Field("user", at: \.$user.id)
+        Field("post", at: \.$post.id)
+    }
 
     Query {
         Field("unregisteredUsers", at: Resolver.getAllUsers)
