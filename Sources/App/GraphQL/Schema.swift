@@ -51,7 +51,6 @@ let schema = try! Schema<Resolver, Request> {
             Argument("id", at: \.id)
             Argument("email", at: \.email)
         }
-        
         Field("users", at: Resolver.getAllRegisteredUsers)
         Field("user", at: Resolver.getRegisteredUser) {
             Argument("id", at: \.id)
