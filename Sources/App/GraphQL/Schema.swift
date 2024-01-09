@@ -43,6 +43,7 @@ let schema = try! Schema<Resolver, Request> {
         Field("content", at: \.content)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("deleted", at: \.deleted)
+        Field("likes", at: \.likes.count)
     }
     
     Type(LikedPost.self) {
@@ -63,8 +64,13 @@ let schema = try! Schema<Resolver, Request> {
         Field("posts", at: Resolver.getPostsByUser) {
             Argument("creator", at: \.id)
         }
-        Field("post", at: Resolver.getPostsByUser) {
+        Field("post", at: Resolver.getPostById) {
             Argument("id", at: \.id)
+            Argument("likes", at: \.likes)
+        }
+        Field("recentPosts", at: Resolver.getRecentPosts) {
+            Argument("count", at: \.count)
+            Argument("before", at: \.before)
         }
     }
     

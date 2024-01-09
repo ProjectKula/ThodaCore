@@ -11,7 +11,28 @@ import Vapor
 
 struct RecentPostsArgs: Codable {
     let count: Int
-    let before: Date?
+    let before: Int? // Unix milliseconds
+    let likes: Bool?
+    
+    var beforeDate: Date? {
+        guard let before = self.before else {
+            return nil
+        }
+        return Date(timeIntervalSince1970: TimeInterval(before / 1000))
+    }
+    
+    var hasLikes: Bool {
+        self.likes ?? false
+    }
+}
+
+struct PostByIdArgs: Codable {
+    let id: String
+    let likes: Bool?
+    
+    var hasLikes: Bool {
+        self.likes ?? false
+    }
 }
 
 extension Resolver {
@@ -22,9 +43,10 @@ extension Resolver {
             .all()
     }
     
-    func getPostById(request: Request, arguments: StringIdArgs) async throws -> [Post] {
+    func getPostById(request: Request, arguments: PostByIdArgs) async throws -> [Post] {
         try await assertPermission(request: request, .read)
-        return try await Post.query(on: request.db)
+        let query: QueryBuilder<Post> = arguments.hasLikes ? Post.query(on: request.db).with(\.$likes) : Post.query(on: request.db)
+        return try await query
             .filter(\.$id == arguments.id)
             .all()
     }
@@ -32,11 +54,14 @@ extension Resolver {
     func getRecentPosts(request: Request, arguments: RecentPostsArgs) async throws -> [Post] {
         try await assertPermission(request: request, .read)
         
-        return try await Post.query(on: request.db)
+        let query: QueryBuilder<Post> = arguments.hasLikes ? Post.query(on: request.db).with(\.$likes) : Post.query(on: request.db)
+        let before = arguments.beforeDate ?? Date.now
+        
+        return try await query
             .filter(\.$deleted == false)
-            .filter(\.$createdAt < (arguments.before ?? Date.now))
+            .filter(\.$createdAt < before)
             .sort(\.$createdAt, .descending)
-            .limit(arguments.count)
+            .limit(min(arguments.count, 10))
             .all()
     }
 }

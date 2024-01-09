@@ -26,6 +26,9 @@ final class Post: Model, Content {
     @Field(key: "deleted")
     var deleted: Bool
     
+    @Children(for: \.$post)
+    var likes: [LikedPost]
+    
     init() {
     }
     
