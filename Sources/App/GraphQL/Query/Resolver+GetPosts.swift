@@ -12,8 +12,8 @@ import Vapor
 struct RecentPostsArgs: Codable {
     let count: Int
     let before: Int? // Unix milliseconds
-    let likes: Bool?
-    let creator: Bool?
+    let getLikes: Bool?
+    let getCreator: Bool?
     
     var beforeDate: Date? {
         guard let before = self.before else {
@@ -23,34 +23,34 @@ struct RecentPostsArgs: Codable {
     }
     
     var hasLikes: Bool {
-        self.likes ?? false
+        self.getLikes ?? false
     }
     
     var hasCreator: Bool {
-        self.creator ?? false
+        self.getCreator ?? false
     }
 }
 
 struct PostByIdArgs: Codable {
     let id: String
-    let likes: Bool?
-    let creator: Bool?
+    let getLikes: Bool?
+    let getCreator: Bool?
     
     var hasLikes: Bool {
-        self.likes ?? false
+        self.getLikes ?? false
     }
     
     var hasCreator: Bool {
-        self.creator ?? false
+        self.getCreator ?? false
     }
 }
 
 struct PostByUserArgs: Codable {
     let id: Int
-    let likes: Bool?
+    let getLikes: Bool?
     
     var hasLikes: Bool {
-        self.likes ?? false
+        self.getLikes ?? false
     }
 }
 
@@ -82,7 +82,7 @@ extension Resolver {
         query = arguments.hasLikes ? query.with(\.$likes) : query
         query = arguments.hasCreator ? query.with(\.$creator) : query
         let before = arguments.beforeDate ?? Date.now
-        
+
         return try await query
             .filter(\.$deleted == false)
             .filter(\.$createdAt < before)

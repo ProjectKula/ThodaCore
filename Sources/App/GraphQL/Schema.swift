@@ -64,18 +64,18 @@ let schema = try! Schema<Resolver, Request> {
         }
         Field("posts", at: Resolver.getPostsByUser) {
             Argument("creator", at: \.id)
-            Argument("getLikes", at: \.likes)
+            Argument("getLikes", at: \.getLikes)
         }
         Field("post", at: Resolver.getPostById) {
             Argument("id", at: \.id)
-            Argument("getLikes", at: \.likes)
-            Argument("getCreator", at: \.creator)
+            Argument("getLikes", at: \.getLikes)
+            Argument("getCreator", at: \.getCreator)
         }
         Field("recentPosts", at: Resolver.getRecentPosts) {
             Argument("count", at: \.count)
             Argument("before", at: \.before)
-            Argument("getLikes", at: \.likes)
-            Argument("getCreator", at: \.creator)
+            Argument("getLikes", at: \.getLikes)
+            Argument("getCreator", at: \.getCreator)
         }
     }
     

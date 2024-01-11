@@ -57,6 +57,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateRegisteredUser())
     app.migrations.add(CreateUserAuth())
     app.migrations.add(CreatePosts())
+    app.migrations.add(CreateLikedPosts())
     
     app.jwt.google.gSuiteDomainName = AppConfig.googleWorkspaceDomain
     app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
