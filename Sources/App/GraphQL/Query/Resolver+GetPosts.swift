@@ -18,7 +18,7 @@ struct RecentPostsArgs: Codable {
         guard let before = self.before else {
             return nil
         }
-        return Date(timeIntervalSince1970: TimeInterval(before / 1000))
+        return Date(timeIntervalSince1970: TimeInterval(before))
     }
     
     var hasLikes: Bool {
