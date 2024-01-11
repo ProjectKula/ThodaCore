@@ -13,6 +13,7 @@ struct RecentPostsArgs: Codable {
     let count: Int
     let before: Int? // Unix milliseconds
     let likes: Bool?
+    let creator: Bool?
     
     var beforeDate: Date? {
         guard let before = self.before else {
@@ -24,10 +25,28 @@ struct RecentPostsArgs: Codable {
     var hasLikes: Bool {
         self.likes ?? false
     }
+    
+    var hasCreator: Bool {
+        self.creator ?? false
+    }
 }
 
 struct PostByIdArgs: Codable {
     let id: String
+    let likes: Bool?
+    let creator: Bool?
+    
+    var hasLikes: Bool {
+        self.likes ?? false
+    }
+    
+    var hasCreator: Bool {
+        self.creator ?? false
+    }
+}
+
+struct PostByUserArgs: Codable {
+    let id: Int
     let likes: Bool?
     
     var hasLikes: Bool {
@@ -36,25 +55,32 @@ struct PostByIdArgs: Codable {
 }
 
 extension Resolver {
-    func getPostsByUser(request: Request, arguments: IntIdArgs) async throws -> [Post] {
+    func getPostsByUser(request: Request, arguments: PostByUserArgs) async throws -> [Post] {
         try await assertPermission(request: request, .read)
         return try await Post.query(on: request.db)
+            .with(\.$creator)
             .filter(\.$creator.$id == arguments.id)
             .all()
     }
     
-    func getPostById(request: Request, arguments: PostByIdArgs) async throws -> [Post] {
+    func getPostById(request: Request, arguments: PostByIdArgs) async throws -> Post {
         try await assertPermission(request: request, .read)
-        let query: QueryBuilder<Post> = arguments.hasLikes ? Post.query(on: request.db).with(\.$likes) : Post.query(on: request.db)
+        var query: QueryBuilder<Post> = Post.query(on: request.db)
+        query = arguments.hasLikes ? query.with(\.$likes) : query
+        query = arguments.hasCreator ? query.with(\.$creator) : query
         return try await query
             .filter(\.$id == arguments.id)
-            .all()
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .get()
     }
     
     func getRecentPosts(request: Request, arguments: RecentPostsArgs) async throws -> [Post] {
         try await assertPermission(request: request, .read)
         
-        let query: QueryBuilder<Post> = arguments.hasLikes ? Post.query(on: request.db).with(\.$likes) : Post.query(on: request.db)
+        var query: QueryBuilder<Post> = Post.query(on: request.db)
+        query = arguments.hasLikes ? query.with(\.$likes) : query
+        query = arguments.hasCreator ? query.with(\.$creator) : query
         let before = arguments.beforeDate ?? Date.now
         
         return try await query
