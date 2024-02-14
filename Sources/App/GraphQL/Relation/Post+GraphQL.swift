@@ -11,6 +11,7 @@ import Graphiti
 
 // TODO: use a data loader (these are N+1 queries)
 extension Post {
+    // TODO: cache likes count
     func getLikesCount(request: Request, arguments: NoArguments) async throws -> Int {
         return try await self.$likes.query(on: request.db).count()
     }
@@ -20,7 +21,7 @@ extension Post {
     }
     
     // TODO: use pagination
-    func getLikes(request: Request, arguments: NoArguments) async throws -> [LikedPost] {
+    func getLikes(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
         return try await self.$likes.query(on: request.db).all()
     }
 }

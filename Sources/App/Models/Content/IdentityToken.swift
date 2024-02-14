@@ -23,7 +23,7 @@ open class IdentityToken: JWTPayload {
     public init(id: Int) {
         self.expiration = .init(value: .init(timeIntervalSinceNow: 86400))
         self.token = [UInt8].random(count: 64).base64
-        self.perm = Permissions.defaultPermission
+        self.perm = Scopes.defaultScope
         self.id = id
     }
     

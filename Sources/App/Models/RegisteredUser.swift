@@ -49,6 +49,9 @@ public final class RegisteredUser: Model, Content {
     
     @Children(for: \.$creator)
     var posts: [Post]
+    
+    @Siblings(through: LikedPost.self, from: \.$user, to: \.$post)
+    var likedPosts: [Post]
 
     public init() { }
 

@@ -15,4 +15,9 @@ extension RegisteredUser {
     func getPosts(request: Request, arguments: NoArguments) async throws -> [Post] {
         return try await self.$posts.query(on: request.db).all()
     }
+    
+    // TODO: use pagination
+    func getLikedPosts(request: Request, arguments: NoArguments) async throws -> [Post] {
+        return try await self.$likedPosts.query(on: request.db).all()
+    }
 }

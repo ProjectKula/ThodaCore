@@ -49,21 +49,9 @@ let schema = try! Schema<Resolver, Request> {
         Field("likes", at: Post.getLikes) // TODO: use pagination
         Field("likesCount", at: Post.getLikesCount)
     }
-    
-    Type(LikedPost.self) { // Parents - user and post
-        Field("userId", at: \.$user.id)
-        Field("postId", at: \.$post.id)
-        Field("user", at: LikedPost.getUser)
-        Field("post", at: LikedPost.getPost)
-    }
 
     Query {
-        Field("unregisteredUsers", at: Resolver.getAllUsers)
-        Field("unregisteredUser", at: Resolver.getUser) {
-            Argument("id", at: \.id)
-            Argument("email", at: \.email)
-        }
-        Field("users", at: Resolver.getAllRegisteredUsers)
+        Field("self", at: Resolver.getSelf)
         Field("user", at: Resolver.getRegisteredUser) {
             Argument("id", at: \.id)
         }
@@ -80,15 +68,13 @@ let schema = try! Schema<Resolver, Request> {
     }
     
     Mutation {
-        Field("editUserInfo", at: Resolver.editUserInfo) {
-            Argument("id", at: \.id)
+        Field("editProfile", at: Resolver.editProfile) {
             Argument("gender", at: \.gender)
             Argument("bio", at: \.bio)
             Argument("pronouns", at: \.pronouns)
             Argument("personalEmail", at: \.personalEmail)
         }
         Field("createPost", at: Resolver.createPost) {
-            Argument("creator", at: \.creator)
             Argument("content", at: \.content)
         }
         Field("deletePost", at: Resolver.deletePost) {
@@ -98,11 +84,9 @@ let schema = try! Schema<Resolver, Request> {
             Argument("id", at: \.id)
         }
         Field("likePost", at: Resolver.likePost) {
-            Argument("user", at: \.user)
             Argument("post", at: \.post)
         }
         Field("unlikePost", at: Resolver.unlikePost) {
-            Argument("user", at: \.user)
             Argument("post", at: \.post)
         }
     }

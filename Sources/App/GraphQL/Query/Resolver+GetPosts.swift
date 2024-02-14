@@ -23,7 +23,7 @@ struct RecentPostsArgs: Codable {
 
 extension Resolver {
     func getPostsByUser(request: Request, arguments: IntIdArgs) async throws -> [Post] {
-        try await assertPermission(request: request, .read)
+        try await assertScope(request: request, .read)
         return try await Post.query(on: request.db)
             .with(\.$creator)
             .filter(\.$creator.$id == arguments.id)
@@ -31,7 +31,7 @@ extension Resolver {
     }
     
     func getPostById(request: Request, arguments: StringIdArgs) async throws -> Post {
-        try await assertPermission(request: request, .read)
+        try await assertScope(request: request, .read)
         return try await Post.query(on: request.db)
             .filter(\.$id == arguments.id)
             .first()
@@ -40,7 +40,7 @@ extension Resolver {
     }
     
     func getRecentPosts(request: Request, arguments: RecentPostsArgs) async throws -> [Post] {
-        try await assertPermission(request: request, .read)
+        try await assertScope(request: request, .read)
         
         let before = arguments.beforeDate ?? Date.now
 
