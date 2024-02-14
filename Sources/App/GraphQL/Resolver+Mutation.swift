@@ -85,15 +85,15 @@ extension Resolver {
         return post
     }
     
-    func likePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
+    func likePost(request: Request, arguments: LikePostArgs) async throws -> Bool {
         try await assertScope(request: request, .createPosts)
         let token = try await getAndVerifyAccessToken(req: request)
         let lp: LikedPost = .init(postId: arguments.post, userId: token.id)
         try await lp.create(on: request.db)
-        return lp
+        return true
     }
     
-    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> LikedPost {
+    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> Bool {
         try await assertScope(request: request, .createPosts)
         let token = try await getAndVerifyAccessToken(req: request)
         let lp = try await LikedPost.query(on: request.db)
@@ -103,7 +103,7 @@ extension Resolver {
             .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID"))
             .get()
         try await lp.delete(on: request.db)
-        return lp
+        return true
     }
 }
 
