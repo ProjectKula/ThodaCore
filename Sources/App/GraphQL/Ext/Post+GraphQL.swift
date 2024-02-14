@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 import Graphiti
 
-// TODO: use a data loader (this is an N+1 query)
+// TODO: use a data loader (these are N+1 queries)
 extension Post {
     func getLikesCount(request: Request, arguments: NoArguments) async throws -> Int {
         return try await self.$likes.query(on: request.db).count()
