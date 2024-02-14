@@ -39,12 +39,13 @@ let schema = try! Schema<Resolver, Request> {
     
     Type(Post.self) {
         Field("id", at: \.id)
-        Field("creator", at: \.creator)
+        Field("creatorId", at: \.$creator.id)
+        Field("creator", at: Post.getCreator)
         Field("content", at: \.content)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("deleted", at: \.deleted)
-        Field("likes", at: \.likes)
-        Field("likesCount", at: \.likes.count)
+        Field("likes", at: Post.getLikes) // TODO: use pagination
+        Field("likesCount", at: Post.getLikesCount)
     }
     
     Type(LikedPost.self) {
@@ -64,18 +65,13 @@ let schema = try! Schema<Resolver, Request> {
         }
         Field("posts", at: Resolver.getPostsByUser) {
             Argument("creator", at: \.id)
-            Argument("getLikes", at: \.getLikes)
         }
         Field("post", at: Resolver.getPostById) {
             Argument("id", at: \.id)
-            Argument("getLikes", at: \.getLikes)
-            Argument("getCreator", at: \.getCreator)
         }
         Field("recentPosts", at: Resolver.getRecentPosts) {
             Argument("count", at: \.count)
             Argument("before", at: \.before)
-            Argument("getLikes", at: \.getLikes)
-            Argument("getCreator", at: \.getCreator)
         }
     }
     
