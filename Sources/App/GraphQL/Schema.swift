@@ -25,7 +25,8 @@ let schema = try! Schema<Resolver, Request> {
     }
     
     Type(RegisteredUser.self) {
-        Field("collegeId", at: \.id)
+        Field("id", at: \.id)
+        Field("collegeId", at: \.$collegeId.id)
         Field("name", at: \.name)
         Field("phone", at: \.phone)
         Field("email", at: \.email)
@@ -35,6 +36,7 @@ let schema = try! Schema<Resolver, Request> {
         Field("pronouns", at: \.pronouns)
         Field("dateRegistered", at: \.dateRegistered?.timeIntervalSince1970)
         Field("bio", at: \.bio)
+        Field("posts", at: RegisteredUser.getPosts)
     }
     
     Type(Post.self) {
@@ -48,9 +50,11 @@ let schema = try! Schema<Resolver, Request> {
         Field("likesCount", at: Post.getLikesCount)
     }
     
-    Type(LikedPost.self) {
-        Field("user", at: \.$user.id)
-        Field("post", at: \.$post.id)
+    Type(LikedPost.self) { // Parents - user and post
+        Field("userId", at: \.$user.id)
+        Field("postId", at: \.$post.id)
+        Field("user", at: LikedPost.getUser)
+        Field("post", at: LikedPost.getPost)
     }
 
     Query {

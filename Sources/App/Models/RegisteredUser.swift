@@ -46,6 +46,9 @@ public final class RegisteredUser: Model, Content {
     
     @Field(key: "intake_year")
     var intakeYear: Int
+    
+    @Children(for: \.$creator)
+    var posts: [Post]
 
     public init() { }
 
