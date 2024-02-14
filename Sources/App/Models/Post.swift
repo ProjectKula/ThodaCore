@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import Foundation
 
 final class Post: Model, Content {
     public static let schema = "posts"
@@ -26,8 +27,8 @@ final class Post: Model, Content {
     @Field(key: "deleted")
     var deleted: Bool
     
-    @Children(for: \.$post)
-    var likes: [LikedPost]
+    @Siblings(through: LikedPost.self, from: \.$post, to: \.$user)
+    var likes: [RegisteredUser]
     
     init() {
     }
@@ -52,7 +53,7 @@ func generateId(_ content: String) -> String {
     postId += timestamp
     
     for _ in 0 ..< 12 - postId.count {
-        let randomIndex = Int(arc4random_uniform(UInt32(characters.count)))
+        let randomIndex = Int.random(in: 0...characters.count)
         postId.insert(characters[characters.index(characters.startIndex, offsetBy: randomIndex)], at: content.startIndex)
     }
 
