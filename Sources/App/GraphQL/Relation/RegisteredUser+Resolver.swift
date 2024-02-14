@@ -1,5 +1,5 @@
 //
-//  RegisteredUser+GraphQL.swift
+//  RegisteredUser+Resolver.swift
 //
 //
 //  Created by Shrish Deshpande on 14/02/24.
