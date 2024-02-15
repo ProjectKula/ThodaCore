@@ -11,7 +11,7 @@ Contributions and improvements are always welcome. Feel free to fork the reposit
 
 1. Clone the repository
 ```
-git clone https://github.com/cyberslothz/ThodaAur
+git clone https://github.com/cyberslothz/ThodaCore
 ```
 2. Install dependencies
 ```
@@ -19,16 +19,16 @@ cd ThodaCore
 swift package resolve
 ```
 3. Start a PostgreSQL server on port 5432, with the username `postgres` and password `12345678`. Create a database `postgres`, if it doesn't already exist.
-4. Redis
+4. Run Redis on the default port.
 5. Run all migrations. This will ensure you're running the latest database schema.
 ```
 swift run App migrate
 ```
-6. Run the app using
+6. Run the app
 ```
 swift run App
 ```
-7. Use `http://127.0.0.1:8080/graphql` to access the GraphQL APIs.
+7. Use `http://127.0.0.1:8080/graphql` as the GraphQL endpoint.
 
 ## Lore
 The name Thoda Core comes from `Thoda Aur`, one of the canteens at RVCE.
