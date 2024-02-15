@@ -13,3 +13,4 @@ db.sqlite
 *.xlsx
 *.pdf
 *.csv
+Config.plist

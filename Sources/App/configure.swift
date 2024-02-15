@@ -6,33 +6,81 @@ import Smtp
 import Redis
 import JWT
 
-struct AppConfig {
-    static let databaseHost = Environment.get("DATABASE_HOST") ?? "localhost"
-    static let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432
-    static let databaseUsername = Environment.get("DATABASE_USERNAME") ?? "postgres"
-    static let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "12345678"
-    static let databaseName = Environment.get("DATABASE_NAME") ?? "postgres"
-    static let defaultEmail = Environment.get("EMAIL_NAME") ?? "postalkings.postcrossing@gmail.com"
-    static let smtpHost = Environment.get("EMAIL_SMTP") ?? "smtp.gmail.com"
-    static let smtpPassword = Environment.get("EMAIL_PASSWORD") ?? "NotMyEmailPassword"
-    static let smtpPort = Environment.get("SMTP_PORT").flatMap(Int.init(_:)) ?? 587
-    static let redisHost = Environment.get("REDIS_HOST") ?? "127.0.0.1"
-    static let signupCodeExpireTime = Environment.get("SIGNUP_CODE_EXPIRE_TIME").flatMap(Int.init(_:)) ?? 600
-    static let jwtSigningKey = Environment.get("JWT_SIGNING_KEY") ?? "secret"
-    static let googleWorkspaceDomain = Environment.get("GOOGLE_WORKSPACE_DOMAIN") ?? "rvce.edu.in"
+struct AppConfig: Codable {
+    var postgres: PostgresConfig = .init()
+    var smtp: SmtpConfig = .init()
+    var redis: RedisConfig = .init()
+    var auth: AuthConfig = .init()
+    var external: ExternalConfig = .init()
+    
+    struct PostgresConfig: Codable {
+        var host: String = "localhost"
+        var port: Int = 5432
+        var username: String = "postgres"
+        var password: String = "12345678"
+        var database: String = "postgres"
+    }
+    
+    struct SmtpConfig: Codable {
+        var email: String = "postalkings.postcrossing@gmail.com"
+        var host: String = "smtp.gmail.com"
+        var password: String = "NotMyEmailPassword"
+        var port: Int = 587
+    }
+    
+    struct RedisConfig: Codable {
+        var host: String = "127.0.0.1"
+    }
+    
+    struct AuthConfig: Codable {
+        var signingKey: String = "secret"
+        var signupCodeExpireTime: Int = 600
+    }
+    
+    struct ExternalConfig: Codable {
+        var googleWorkspaceDomain: String = "rvce.edu.in"
+    }
 }
 
-// configures your application
+extension AppConfig {
+    static let path = Environment.get("THODACORE_CONFIG") ?? "Config.plist"
+    
+    static func firstLoad() -> AppConfig {
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: AppConfig.path)) {
+            do {
+                return try PropertyListDecoder().decode(AppConfig.self, from: data)
+            } catch {
+                fatalError("Error decoding config file: \(error)")
+            }
+        } else {
+            do {
+                let config: AppConfig = .init()
+                let encoder = PropertyListEncoder()
+                encoder.outputFormat = .xml
+                let data = try encoder.encode(config)
+                try data.write(to: URL(fileURLWithPath: AppConfig.path))
+                return config
+            } catch {
+                fatalError("Error encoding config file: \(error)")
+            }
+        }
+    }
+}
+
+var appConfig: AppConfig = .init()
+
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    
+    appConfig = AppConfig.firstLoad()
 
     app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
-        hostname: AppConfig.databaseHost,
-        port: AppConfig.databasePort,
-        username: AppConfig.databaseUsername,
-        password: AppConfig.databasePassword,
-        database: AppConfig.databaseName,
+        hostname: appConfig.postgres.host,
+        port: appConfig.postgres.port,
+        username: appConfig.postgres.username,
+        password: appConfig.postgres.password,
+        database: appConfig.postgres.database,
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql, isDefault: true)
 
@@ -43,15 +91,15 @@ public func configure(_ app: Application) async throws {
     )
     app.middleware.use(CORSMiddleware(configuration: corsConfiguration), at: .beginning)
     
-    app.smtp.configuration.hostname = AppConfig.smtpHost
+    app.smtp.configuration.hostname = appConfig.smtp.host
     app.smtp.configuration.signInMethod = .credentials(
-        username: AppConfig.defaultEmail,
-        password: AppConfig.smtpPassword
+        username: appConfig.smtp.email,
+        password: appConfig.smtp.password
     )
-    app.smtp.configuration.port = AppConfig.smtpPort
+    app.smtp.configuration.port = appConfig.smtp.port
     app.smtp.configuration.secure = .startTls
     
-    app.redis.configuration = try .init(hostname: AppConfig.redisHost)
+    app.redis.configuration = try .init(hostname: appConfig.redis.host)
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateRegisteredUser())
@@ -59,8 +107,8 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreatePosts())
     app.migrations.add(CreateLikedPosts())
     
-    app.jwt.google.gSuiteDomainName = AppConfig.googleWorkspaceDomain
-    app.jwt.signers.use(.hs256(key: AppConfig.jwtSigningKey))
+    app.jwt.google.gSuiteDomainName = appConfig.external.googleWorkspaceDomain
+    app.jwt.signers.use(.hs256(key: appConfig.auth.signingKey))
 
     // register routes
     try routes(app)
