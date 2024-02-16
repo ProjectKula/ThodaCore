@@ -52,6 +52,12 @@ public final class RegisteredUser: Model, Content {
     
     @Siblings(through: LikedPost.self, from: \.$user, to: \.$post)
     var likedPosts: [Post]
+    
+    @Siblings(through: Follower.self, from: \.$followed, to: \.$follower)
+    var followers: [RegisteredUser]
+    
+    @Siblings(through: Follower.self, from: \.$follower, to: \.$followed)
+    var following: [RegisteredUser]
 
     public init() { }
 
