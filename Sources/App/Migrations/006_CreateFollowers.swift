@@ -16,6 +16,7 @@ struct CreateFollowers: Migration {
             .field("follower_id", .int, .required, .references("registeredUsers", "id"))
             .field("followed_id", .int, .required, .references("registeredUsers", "id"))
             .unique(on: "id")
+            .unique(on: "follower_id", "followed_id")
             .create()
     }
 

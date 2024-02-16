@@ -37,6 +37,10 @@ let schema = try! Schema<Resolver, Request> {
         Field("dateRegistered", at: \.dateRegistered?.timeIntervalSince1970)
         Field("bio", at: \.bio)
         Field("posts", at: RegisteredUser.getPosts)
+        Field("followers", at: RegisteredUser.getFollowers)
+        Field("followerCount", at: RegisteredUser.getFollowerCount)
+        Field("following", at: RegisteredUser.getFollowing)
+        Field("followingCount", at: RegisteredUser.getFollowingCount)
     }
     
     Type(Post.self) {
@@ -88,6 +92,12 @@ let schema = try! Schema<Resolver, Request> {
         }
         Field("unlikePost", at: Resolver.unlikePost) {
             Argument("post", at: \.post)
+        }
+        Field("followUser", at : Resolver.followUser) {
+            Argument("id", at: \.id)
+        }
+        Field("unfollowUser", at: Resolver.unfollowUser) {
+            Argument("id", at: \.id)
         }
     }
 }
