@@ -20,4 +20,8 @@ extension RegisteredUser {
     func getLikedPosts(request: Request, arguments: NoArguments) async throws -> [Post] {
         return try await self.$likedPosts.query(on: request.db).all()
     }
+    
+    func isSelf(request: Request, arguments: NoArguments) async throws -> Bool {
+        return try await getAndVerifyAccessToken(req: request).id == self.id
+    }
 }
