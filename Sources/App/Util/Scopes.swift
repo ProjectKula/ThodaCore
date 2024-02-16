@@ -10,11 +10,12 @@ import Vapor
 import Fluent
 
 enum Scopes: Int {
-    case read            = 0b1 // Read all publicly availble data
-    case identity       = 0b10 // Read email, phone TODO: implement this
-    case editProfile   = 0b100 // Query multiple users and/or unregistered users
-    case createPosts  = 0b1000 // Create Posts, like posts
-    case deletePosts = 0b10000 // Delete and restore posts
+    case read             = 0b1 // Read all publicly availble data
+    case identity        = 0b10 // Read email, phone TODO: implement this
+    case editProfile    = 0b100 // Query multiple users and/or unregistered users
+    case createPosts   = 0b1000 // Create Posts, like posts
+    case deletePosts  = 0b10000 // Delete and restore posts
+    case followUsers = 0b100000 // Follow and unfollow users, manage followers
     
     static let defaultScope: Int = create([
         .read,

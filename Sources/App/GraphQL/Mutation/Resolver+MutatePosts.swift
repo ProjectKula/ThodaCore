@@ -1,20 +1,13 @@
 //
-//  File.swift
-//  
+//  Resolver+MutatePosts.swift
 //
-//  Created by Shrish Deshpande on 05/01/24.
+//
+//  Created by Shrish Deshpande on 16/02/24.
 //
 
 import Vapor
 import Graphiti
 import Fluent
-
-struct EditProfileArgs: Codable {
-    var gender: String?
-    var bio: String?
-    var pronouns: String?
-    var personalEmail: String?
-}
 
 struct CreatePostArgs: Codable {
     var content: String
@@ -24,27 +17,7 @@ struct LikePostArgs: Codable {
     var post: String
 }
 
-extension Resolver {
-    func editProfile(request: Request, arguments: EditProfileArgs) async throws -> RegisteredUser {
-        let token = try await getAndVerifyAccessToken(req: request)
-        try await assertScope(request: request, .editProfile)
-        
-        guard let user = try await RegisteredUser.query(on: request.db)
-            .filter(\.$id == token.id)
-            .first() else {
-            throw Abort(.notFound, reason: "User \(token.id) not found")
-        }
-        
-        user.setValue(\.gender, arguments.gender, orElse: "X")
-        user.setValue(\.bio, arguments.bio, orElse: nil)
-        user.setValue(\.pronouns, arguments.pronouns, orElse: nil)
-        user.setValue(\.personalEmail, arguments.personalEmail, orElse: nil)
-        
-        try await user.update(on: request.db)
-        
-        return user
-    }
-    
+extension Resolver {    
     func createPost(request: Request, arguments: CreatePostArgs) async throws -> Post {
         let token = try await getAndVerifyAccessToken(req: request)
         try await assertScope(request: request, .createPosts)

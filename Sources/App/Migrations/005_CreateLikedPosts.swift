@@ -14,6 +14,7 @@ struct CreateLikedPosts: Migration {
             .field("postId", .string, .required, .references("posts", "id"))
             .field("userId", .int, .required, .references("registeredUsers", "id"))
             .unique(on: "id")
+            .unique(on: "postId", "userId")
             .create()
     }
 
