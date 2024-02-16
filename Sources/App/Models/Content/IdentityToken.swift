@@ -116,6 +116,10 @@ func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
     return payload
 }
 
+func verifyAccessToken(req: Request) async throws {
+    _ = try await getAndVerifyAccessToken(req: req)
+}
+
 func generateTokenPairResponse(req: Request, collegeId: String) async throws -> AuthResponseBody {
     let tokenPair = try await generateStoredTokenPair(req: req, collegeId: collegeId)
     let expiresAt = Int64(tokenPair.0.expiration.value.timeIntervalSince1970 * 1000)
