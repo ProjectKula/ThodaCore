@@ -25,7 +25,6 @@ extension Resolver {
     func getPostsByUser(request: Request, arguments: IntIdArgs) async throws -> [Post] {
         try await verifyAccessToken(req: request)
         return try await Post.query(on: request.db)
-            .with(\.$creator)
             .filter(\.$creator.$id == arguments.id)
             .all()
     }
