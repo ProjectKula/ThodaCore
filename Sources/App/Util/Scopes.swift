@@ -10,11 +10,12 @@ import Vapor
 import Fluent
 
 enum Scopes: Int {
-    case identity        = 0b1 // Read email, phone TODO: implement this
-    case editProfile    = 0b10 // Query multiple users and/or unregistered users
-    case createPosts   = 0b100 // Create Posts, like posts
-    case deletePosts  = 0b1000 // Delete and restore posts
-    case followUsers = 0b10000 // Follow and unfollow users, manage followers
+    case identity         = 0b1 // Read email, phone TODO: implement this
+    case editProfile     = 0b10 // Query multiple users and/or unregistered users
+    case createPosts    = 0b100 // Create Posts, like posts
+    case deletePosts   = 0b1000 // Delete and restore posts
+    case followUsers  = 0b10000 // Follow and unfollow users, manage followers
+    case confessions = 0b100000 // Create confessions
     
     static let defaultScope: Int = create([
         .identity,
