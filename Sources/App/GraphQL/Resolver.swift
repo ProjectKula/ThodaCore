@@ -6,7 +6,6 @@
 //
 
 import Graphiti
-import Fluent
 import Vapor
 
 final class Resolver {

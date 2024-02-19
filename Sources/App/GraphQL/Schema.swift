@@ -7,11 +7,12 @@
 
 import Foundation
 import Vapor
+import Fluent
 import Graphiti
 
 struct AccountQuery: Encodable {}
 
-let schema = try! Schema<Resolver, Request> {
+let schema = try! Graphiti.Schema<Resolver, Request> {
     Scalar(UUID.self)
     Scalar(Date.self)
 
@@ -53,7 +54,25 @@ let schema = try! Schema<Resolver, Request> {
         Field("likes", at: Post.getLikes) // TODO: use pagination
         Field("likesCount", at: Post.getLikesCount)
     }
-
+    
+    Type(Confession.self) {
+        Field("id", at: \.id)
+        Field("content", at: \.content)
+        Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
+    }
+    
+    Type(PageMetadata.self) {
+        Field("page", at: \.page)
+        Field("per", at: \.per)
+        Field("total", at: \.total)
+        Field("pageCount", at: \.pageCount)
+    }
+    
+    Type(Page<Confession>.self) {
+        Field("items", at: \.items)
+        Field("metadata", at: \.metadata)
+    }
+    
     Query {
         Field("self", at: Resolver.getSelf)
         Field("user", at: Resolver.getRegisteredUser) {
@@ -68,6 +87,10 @@ let schema = try! Schema<Resolver, Request> {
         Field("recentPosts", at: Resolver.getRecentPosts) {
             Argument("count", at: \.count)
             Argument("before", at: \.before)
+        }
+        Field("confessions", at: Resolver.getConfessions) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
         }
     }
     
