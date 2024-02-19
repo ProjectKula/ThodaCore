@@ -42,6 +42,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("followerCount", at: RegisteredUser.getFollowerCount)
         Field("following", at: RegisteredUser.getFollowing)
         Field("followingCount", at: RegisteredUser.getFollowingCount)
+        Field("isSelf", at: RegisteredUser.isSelf)
     }
     
     Type(Post.self) {
