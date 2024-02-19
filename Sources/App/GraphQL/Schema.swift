@@ -122,5 +122,8 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("unfollowUser", at: Resolver.unfollowUser) {
             Argument("id", at: \.id)
         }
+        Field("confess", at: Resolver.confess) {
+            Argument("content", at: \.content)
+        }
     }
 }
