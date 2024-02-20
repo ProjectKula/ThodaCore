@@ -32,7 +32,7 @@ extension Resolver {
         return user
     }
     
-    func followUser(request: Request, arguments: IntIdArgs) async throws -> Bool {
+    func followUser(request: Request, arguments: IntIdArgs) async throws -> Int {
         try await assertScope(request: request, .followUsers)
         
         let user = try await getContextUser(request)
@@ -45,10 +45,10 @@ extension Resolver {
         
         try await user.$following.attach(target, on: request.db)
         
-        return true
+        return try await user.$following.query(on: request.db).count()
     }
     
-    func unfollowUser(request: Request, arguments: IntIdArgs) async throws -> Bool {
+    func unfollowUser(request: Request, arguments: IntIdArgs) async throws -> Int {
         try await assertScope(request: request, .followUsers)
         
         let user = try await getContextUser(request)
@@ -61,6 +61,6 @@ extension Resolver {
         
         try await user.$following.detach(target, on: request.db)
         
-        return true
+        return try await user.$following.query(on: request.db).count()
     }
 }

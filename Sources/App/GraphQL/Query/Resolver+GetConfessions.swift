@@ -13,6 +13,7 @@ extension Resolver {
     func getConfessions(request: Request, arguments: PaginationArgs) async throws -> Page<Confession> {
         try await verifyAccessToken(req: request)
         return try await Confession.query(on: request.db)
+            .sort(\.$id, .descending)
             .paginate(.init(page: arguments.page, per: arguments.per))
     }
 }

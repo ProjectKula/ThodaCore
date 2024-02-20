@@ -11,32 +11,36 @@ import Graphiti
 
 // TODO: use a data loader (these are N+1 queries)
 extension RegisteredUser {
-    // TODO: use pagination
-    func getPosts(request: Request, arguments: NoArguments) async throws -> [Post] {
-        return try await self.$posts.query(on: request.db).all()
+    func getPosts(request: Request, arguments: PaginationArgs) async throws -> Page<Post> {
+        return try await self.$posts.query(on: request.db)
+            .sort(\.$id)
+            .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
-    // TODO: use pagination
-    func getLikedPosts(request: Request, arguments: NoArguments) async throws -> [Post] {
-        return try await self.$likedPosts.query(on: request.db).all()
+    func getLikedPosts(request: Request, arguments: PaginationArgs) async throws -> Page<Post> {
+        return try await self.$likedPosts.query(on: request.db)
+            .sort(\.$id)
+            .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
     func isSelf(request: Request, arguments: NoArguments) async throws -> Bool {
         return try await getAndVerifyAccessToken(req: request).id == self.id
     }
     
-    // TODO: use pagination
-    func getFollowers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-        return try await self.$followers.query(on: request.db).all()
+    func getFollowers(request: Request, arguments: PaginationArgs) async throws -> Page<RegisteredUser> {
+        return try await self.$followers.query(on: request.db)
+            .sort(\.$id)
+            .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
     func getFollowerCount(request: Request, arguments: NoArguments) async throws -> Int {
         return try await self.$followers.query(on: request.db).count()
     }
     
-    // TODO: use pagination
-    func getFollowing(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-        return try await self.$following.query(on: request.db).all()
+    func getFollowing(request: Request, arguments: PaginationArgs) async throws -> Page<RegisteredUser> {
+        return try await self.$following.query(on: request.db)
+            .sort(\.$id)
+            .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
     func getFollowingCount(request: Request, arguments: NoArguments) async throws -> Int {

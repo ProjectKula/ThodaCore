@@ -21,12 +21,19 @@ struct RecentPostsArgs: Codable {
     }
 }
 
+struct PostsPaginationArgs: Codable {
+    var creator: Int
+    var page: Int
+    var per: Int
+}
+
 extension Resolver {
-    func getPostsByUser(request: Request, arguments: IntIdArgs) async throws -> [Post] {
+    func getPostsByUser(request: Request, arguments: PostsPaginationArgs) async throws -> Page<Post> {
         try await verifyAccessToken(req: request)
         return try await Post.query(on: request.db)
-            .filter(\.$creator.$id == arguments.id)
-            .all()
+            .filter(\.$creator.$id == arguments.creator)
+            .sort(\.$createdAt, .descending)
+            .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
     func getPostById(request: Request, arguments: StringIdArgs) async throws -> Post {
