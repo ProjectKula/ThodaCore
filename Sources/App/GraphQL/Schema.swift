@@ -37,10 +37,19 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("pronouns", at: \.pronouns)
         Field("dateRegistered", at: \.dateRegistered?.timeIntervalSince1970)
         Field("bio", at: \.bio)
-        Field("posts", at: RegisteredUser.getPosts)
-        Field("followers", at: RegisteredUser.getFollowers)
+        Field("posts", at: RegisteredUser.getPosts) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
+        }
+        Field("followers", at: RegisteredUser.getFollowers) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
+        }
         Field("followerCount", at: RegisteredUser.getFollowerCount)
-        Field("following", at: RegisteredUser.getFollowing)
+        Field("following", at: RegisteredUser.getFollowing) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
+        }
         Field("followingCount", at: RegisteredUser.getFollowingCount)
         Field("isSelf", at: RegisteredUser.isSelf)
         Field("followedBySelf", at: RegisteredUser.followedBySelf)
@@ -54,7 +63,10 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("content", at: \.content)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("deleted", at: \.deleted)
-        Field("likes", at: Post.getLikes) // TODO: use pagination
+        Field("likes", at: Post.getLikes) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
+        }
         Field("likesCount", at: Post.getLikesCount)
     }
     
@@ -76,13 +88,25 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("metadata", at: \.metadata)
     }
     
+    Type(Page<Post>.self) {
+        Field("items", at: \.items)
+        Field("metadata", at: \.metadata)
+    }
+    
+    Type(Page<RegisteredUser>.self) {
+        Field("items", at: \.items)
+        Field("metadata", at: \.metadata)
+    }
+    
     Query {
         Field("self", at: Resolver.getSelf)
         Field("user", at: Resolver.getRegisteredUser) {
             Argument("id", at: \.id)
         }
         Field("posts", at: Resolver.getPostsByUser) {
-            Argument("creator", at: \.id)
+            Argument("creator", at: \.creator)
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
         }
         Field("post", at: Resolver.getPostById) {
             Argument("id", at: \.id)
