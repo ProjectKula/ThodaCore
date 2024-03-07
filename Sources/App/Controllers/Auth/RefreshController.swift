@@ -9,7 +9,7 @@ import Vapor
 
 struct RefreshController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let e = routes.grouped("auth").grouped("refresh")
+        let e = routes.grouped("v0").grouped("auth").grouped("refresh")
         
         e.post(use: refreshToken)
         e.get(use: methodNotAllowed)

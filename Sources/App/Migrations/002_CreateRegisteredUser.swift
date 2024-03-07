@@ -21,6 +21,7 @@ struct CreateRegisteredUser: Migration {
             .field("date_registered", .datetime, .required)
             .field("bio", .string)
             .field("intake_year", .int, .required)
+            .field("avatar_hash", .string)
             .field("id", .int, .custom("GENERATED ALWAYS AS IDENTITY"))
             .unique(on: "collegeId")
             .unique(on: "email")

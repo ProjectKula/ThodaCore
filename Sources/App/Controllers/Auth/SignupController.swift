@@ -13,7 +13,7 @@ import Redis
 
 struct SignupController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let e = routes.grouped("auth").grouped("signup")
+        let e = routes.grouped("v0").grouped("auth").grouped("signup")
         
         e.post(use: initialSignup)
         e.get(use: methodNotAllowed)
@@ -143,19 +143,17 @@ struct SignupController: RouteCollection {
             .first()
             .unwrap(or: Abort(.notFound, reason: "User does not exist"))
             .get()
-        let userAuth: UserCredentials = try .init(id: payload.id, pw: pwBody.password)
         let registeredUser = try InitialRegisteredUser(user: user)
-        
-        do {
-            try await req.db.transaction { db in
-                try await registeredUser.create(on: db)
-                try await userAuth.create(on: db)
-            }
-        } catch {
-            throw Abort(.internalServerError, reason: "Database error")
-        }
-        
-        return try await generateTokenPairResponse(req: req, collegeId: payload.id)
+        try await registeredUser.create(on: req.db)
+        let newUser = try await RegisteredUser.query(on: req.db)
+            .filter(\.$collegeId.$id == payload.id)
+            .first()
+            .unwrap(or: Abort(.internalServerError, reason: "Could not create user"))
+            .get()
+        let userId = try newUser.requireID()
+        let userPassword: UserPassword = try .init(req: req, id: userId, password: pwBody.password)
+        try await userPassword.create(on: req.db)
+        return try await generateTokenPairResponse(req: req, id: userId)
     }
     
     @inlinable
