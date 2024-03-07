@@ -30,8 +30,7 @@ struct MicrosoftController: RouteCollection {
         if let oidc = try await UserOIDC.query(on: req.db)
             .filter(\.$idp == .microsoft)
             .filter(\.$openId == openId)
-            .first()
-            .get() {
+            .first() {
             return try await oidc.authUser(req: req)
         }
 

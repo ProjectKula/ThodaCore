@@ -29,8 +29,7 @@ struct GoogleController: RouteCollection {
         if let oidc = try await UserOIDC.query(on: req.db)
             .filter(\.$idp == .google)
             .filter(\.$openId == openId)
-            .first()
-            .get() {
+            .first() {
             return try await oidc.authUser(req: req)
         }
         
@@ -43,7 +42,6 @@ struct GoogleController: RouteCollection {
             var user = try await RegisteredUser.query(on: req.db)
                 .filter(\.$email == email)
                 .first()
-                .get()
             
             if user == nil {
                 // The user does not exist yet
