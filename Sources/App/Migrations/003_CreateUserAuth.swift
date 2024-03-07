@@ -11,7 +11,7 @@ struct CreateUserAuth: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.transaction { db in
             db.schema("passwords")
-                .field("id", .string, .required)
+                .field("id", .int, .required, .references("registeredUsers", "id"))
                 .field("digest", .string, .required)
                 .create()
                 .flatMap { _ in
