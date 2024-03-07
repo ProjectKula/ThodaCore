@@ -30,8 +30,7 @@ struct AppleController: RouteCollection {
         if let oidc = try await UserOIDC.query(on: req.db)
             .filter(\.$idp == .apple)
             .filter(\.$openId == openId)
-            .first()
-            .get() {
+            .first() {
             return try await oidc.authUser(req: req)
         }
 
