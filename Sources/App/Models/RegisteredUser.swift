@@ -59,6 +59,10 @@ public final class RegisteredUser: Model, Content {
     @Field(key: "intake_year")
     var intakeYear: Int
     
+    /// The user's avatar hash (stored in R2)
+    @Field(key: "avatar_hash")
+    var avatarHash: String?
+    
     /// List of posts this user has created
     @Children(for: \.$creator)
     var posts: [Post]

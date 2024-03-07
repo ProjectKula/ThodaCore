@@ -33,6 +33,7 @@ struct AppConfig: Codable {
     }
     
     struct AuthConfig: Codable {
+        var bcryptCost: Int = 8
         var signingKey: String = "secret"
         var signupCodeExpireTime: Int = 600
     }
@@ -71,7 +72,15 @@ var appConfig: AppConfig = .init()
 
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
-     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    
+    app.migrations.add(CreateUser())
+    app.migrations.add(CreateRegisteredUser())
+    app.migrations.add(CreateUserAuth())
+    app.migrations.add(CreatePosts())
+    app.migrations.add(CreateLikedPosts())
+    app.migrations.add(CreateFollowers())
+    app.migrations.add(CreateConfessions())
     
     appConfig = AppConfig.firstLoad()
 
@@ -100,16 +109,10 @@ public func configure(_ app: Application) async throws {
     app.smtp.configuration.secure = .startTls
     
     app.redis.configuration = try .init(hostname: appConfig.redis.host)
-
-    app.migrations.add(CreateUser())
-    app.migrations.add(CreateRegisteredUser())
-    app.migrations.add(CreateUserAuth())
-    app.migrations.add(CreatePosts())
-    app.migrations.add(CreateLikedPosts())
-    app.migrations.add(CreateFollowers())
-    app.migrations.add(CreateConfessions())
     
-    app.jwt.google.gSuiteDomainName = appConfig.external.googleWorkspaceDomain
+    app.passwords.use(.bcrypt(cost: appConfig.auth.bcryptCost))
+    
+//    app.jwt.google.gSuiteDomainName = appConfig.external.googleWorkspaceDomain
     app.jwt.signers.use(.hs256(key: appConfig.auth.signingKey))
 
     // register routes
