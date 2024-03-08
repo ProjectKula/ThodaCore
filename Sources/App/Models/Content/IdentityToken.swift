@@ -119,7 +119,7 @@ func generateTokenPairResponse(req: Request, collegeId: String) async throws -> 
         .filter(\.$collegeId.$id == collegeId)
         .first()
     guard let id = user?.id else {
-        req.logger.error("Tried creating access token for non existant user '\(collegeId)'")
+        req.logger.error("Tried creating access token for nonexistent user '\(collegeId)'")
         throw Abort(.notFound)
     }
     return try await generateTokenPairResponse(req: req, id: id)
