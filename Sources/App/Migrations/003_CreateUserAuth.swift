@@ -31,6 +31,7 @@ struct CreateUserAuth: Migration {
                         .field("idp", type, .required)
                         .field("openid", .string, .required)
                         .field("url", .string)
+                        .field("email", .string)
                         .unique(on: "id")
                         .unique(on: "idp", "openid")
                         .create()
