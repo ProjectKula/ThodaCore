@@ -16,4 +16,13 @@ extension Resolver {
             .sort(\.$id, .descending)
             .paginate(.init(page: arguments.page, per: arguments.per))
     }
+
+    func getLatestConfession(request: Request, arguments: NoArguments) async throws -> Confession {
+        try await verifyAccessToken(req: request)
+        return try await Confession.query(on: request.db)
+            .sort(\.$id, .descending)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .get()
+    }
 }

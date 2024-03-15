@@ -10,10 +10,8 @@ import Graphiti
 import Fluent
 
 struct EditProfileArgs: Codable {
-    var gender: String?
     var bio: String?
     var pronouns: String?
-    var personalEmail: String?
 }
 
 extension Resolver {
@@ -22,10 +20,8 @@ extension Resolver {
         
         let user = try await getContextUser(request)
         
-        user.setValue(\.gender, arguments.gender, orElse: "X")
         user.setValue(\.bio, arguments.bio, orElse: nil)
         user.setValue(\.pronouns, arguments.pronouns, orElse: nil)
-        user.setValue(\.personalEmail, arguments.personalEmail, orElse: nil)
         
         try await user.update(on: request.db)
         

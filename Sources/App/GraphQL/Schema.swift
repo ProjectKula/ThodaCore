@@ -119,14 +119,13 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("page", at: \.page)
             Argument("per", at: \.per)
         }
+        Field("latestConfession", at: Resolver.getLatestConfession)
     }
     
     Mutation {
         Field("editProfile", at: Resolver.editProfile) {
-            Argument("gender", at: \.gender)
             Argument("bio", at: \.bio)
             Argument("pronouns", at: \.pronouns)
-            Argument("personalEmail", at: \.personalEmail)
         }
         Field("createPost", at: Resolver.createPost) {
             Argument("content", at: \.content)
