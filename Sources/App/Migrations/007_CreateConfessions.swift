@@ -13,7 +13,7 @@ struct CreateConfessions: Migration {
             .field("id", .int, .custom("GENERATED ALWAYS AS IDENTITY"))
             .field("creator", .int, .required, .references("registeredUsers", "id"))
             .field("content", .string, .required)
-            .field("date_created", .datetime, .required)
+            .field("created_at", .datetime, .required)
             .unique(on: "id")
             .create()
     }
