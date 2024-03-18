@@ -16,6 +16,7 @@ db.sqlite
 *.pdf
 *.csv
 Config.plist
+r2_things.txt
 
 # Created by https://www.toptal.com/developers/gitignore/api/emacs
 # Edit at https://www.toptal.com/developers/gitignore?templates=emacs

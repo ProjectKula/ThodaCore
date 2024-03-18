@@ -1,5 +1,5 @@
 //
-//  S3.swift
+//  R2.swift
 //
 //
 //  Created by Shrish Deshpande on 11/03/24.
@@ -8,15 +8,15 @@
 import Vapor
 
 extension Application {
-    public var s3: S3 {
+    public var r2: R2 {
         .init(application: self)
     }
     
-    public struct S3 {
+    public struct R2 {
         let application: Application
 
         struct ConfigKey: StorageKey {
-            typealias Value = S3Configuration
+            typealias Value = R2Configuration
         }
 
         public var configuration: S3Configuration {
