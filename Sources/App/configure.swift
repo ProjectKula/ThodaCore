@@ -51,7 +51,10 @@ public func configure(_ app: Application) async throws {
     app.passwords.use(.bcrypt(cost: appConfig.auth.bcryptCost))
     
 //    app.jwt.google.gSuiteDomainName = appConfig.external.googleWorkspaceDomain
-    app.jwt.signers.use(.hs256(key: appConfig.auth.signingKey))
+    app.jwt.signers.use(.hs256(key: appConfig.auth.signingKey))'
+
+    app.r2.configuration.endpoint = appConfig.r2.endpoint
+    app.r2.configuration.secretKey = appConfig.r2.secretKey
 
     // register routes
     try routes(app)
