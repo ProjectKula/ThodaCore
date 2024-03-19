@@ -9,3 +9,6 @@ trim_trailing_whitespace = false
 [*.swift]
 indent_style=spaces
 indent_size=4
+
+[*.plist]
+indent_style=tab
