@@ -19,9 +19,9 @@ extension Application {
             typealias Value = R2Configuration
         }
 
-        public var configuration: S3Configuration {
+        public var configuration: R2Configuration {
             get {
-                self.application.storage[ConfigKey.self] ?? .init()
+                self.application.storage[ConfigKey.self] ?? .init(secretKey: "", endpoint: "")
             }
             nonmutating set {
                 self.application.storage[ConfigKey.self] = newValue

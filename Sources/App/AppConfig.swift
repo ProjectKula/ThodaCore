@@ -14,7 +14,8 @@ struct AppConfig: Codable {
     var redis: RedisConfig = .init()
     var auth: AuthConfig = .init()
     var external: ExternalConfig = .init()
-    
+    var r2: R2Config = .init()
+
     struct PostgresConfig: Codable {
         var host: String = "localhost"
         var port: Int = 5432
@@ -22,26 +23,31 @@ struct AppConfig: Codable {
         var password: String = "12345678"
         var database: String = "postgres"
     }
-    
+
     struct SmtpConfig: Codable {
         var email: String = "postalkings.postcrossing@gmail.com"
         var host: String = "smtp.gmail.com"
         var password: String = "NotMyEmailPassword"
         var port: Int = 587
     }
-    
+
     struct RedisConfig: Codable {
         var host: String = "127.0.0.1"
     }
-    
+
     struct AuthConfig: Codable {
         var bcryptCost: Int = 8
         var signingKey: String = "secret" // TODO: 
         var signupCodeExpireTime: Int = 600
     }
-    
+
     struct ExternalConfig: Codable {
         var googleWorkspaceDomain: String = "rvce.edu.in"
+    }
+
+    struct R2Config: Codable {
+        var endpoint: String = "http://localhost:8787"
+        var secretKey: String = "secret" // TODO:
     }
 }
 

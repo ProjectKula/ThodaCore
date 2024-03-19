@@ -6,6 +6,6 @@
 //
 
 public struct R2Configuration {
-    public var apiKey: String
+    public var secretKey: String
     public var endpoint: String
 }
