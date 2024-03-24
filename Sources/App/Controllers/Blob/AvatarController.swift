@@ -30,7 +30,7 @@ struct AvatarController: RouteCollection {
             throw Abort(.badRequest, reason: "No data found")
         }
         
-        if data.readableBytes > 1_000_000 {
+        if data.readableBytes > 8_388_608 {
             throw Abort(.badRequest, reason: "File size too large")
         }
 
