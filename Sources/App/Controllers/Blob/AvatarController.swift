@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-import SwiftCrypto
+import Crypto
 
 struct AvatarController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -16,18 +16,38 @@ struct AvatarController: RouteCollection {
         e.post("avatar", use: uploadAvatar)
     }
     
-    func uploadAvatar(req: Request) async throws -> Bool {
+    func uploadAvatar(req: Request) async throws -> AvatarHashResponse {
         let token = try await getAndVerifyAccessToken(req: req)
+        let user = try await RegisteredUser.find(token.id, on: req.db)
+        
+        guard let user = user else {
+            throw Abort(.notFound, reason: "User not found")
+        }
+        
         let data: ByteBuffer? = req.body.data
+        
         guard let data = data else {
             throw Abort(.badRequest, reason: "No data found")
         }
+        
         if data.readableBytes > 1_000_000 {
             throw Abort(.badRequest, reason: "File size too large")
         }
-        let hash: String = Insecure.MD5.hash(data: data).map({ String(format: "%02hhx", $0) }).joined()
-        
-        let user = try await RegisteredUser.find(token.id, on: req.db)
 
+        let dataP = data.getData(at: 0, length: data.readableBytes)
+
+        guard let dataP = dataP else {
+            throw Abort(.badRequest, reason: "Could not read data")
+        }
+        
+        let hash: String = Insecure.MD5.hash(data: dataP).map({ String(format: "%02hhx", $0) }).joined()
+        try await req.r2.post(data, id: hash)
+        user.avatarHash = hash
+        try await user.update(on: req.db)
+        return .init(hash: hash)
     }
+}
+
+struct AvatarHashResponse: Content, Codable {
+    var hash: String
 }
