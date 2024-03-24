@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import SwiftCrypto
 
 struct AvatarController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -17,16 +18,16 @@ struct AvatarController: RouteCollection {
     
     func uploadAvatar(req: Request) async throws -> Bool {
         let token = try await getAndVerifyAccessToken(req: req)
-
-        let user = try await RegisteredUser.find(token.id, on: req.db)
         let data: ByteBuffer? = req.body.data
+        guard let data = data else {
+            throw Abort(.badRequest, reason: "No data found")
+        }
+        if data.readableBytes > 1_000_000 {
+            throw Abort(.badRequest, reason: "File size too large")
+        }
+        let hash: String = Insecure.MD5.hash(data: data).map({ String(format: "%02hhx", $0) }).joined()
         
-        return try await UserPassword.query(on: req.db)
-            .join(RegisteredUser.self, on: \UserPassword.$id == \RegisteredUser.$id)
-            .filter(RegisteredUser.self, \.$email == args.email)
-            .first()
-            .unwrap(or: Abort(.notFound, reason: "User does not exist"))
-            .get()
-            .auth(req: req, args: args)
+        let user = try await RegisteredUser.find(token.id, on: req.db)
+
     }
 }
