@@ -56,6 +56,8 @@ public func configure(_ app: Application) async throws {
     app.r2.configuration.endpoint = appConfig.r2.endpoint
     app.r2.configuration.secretKey = appConfig.r2.secretKey
 
+    app.http.client.configuration
+
     // register routes
     try routes(app)
 }
