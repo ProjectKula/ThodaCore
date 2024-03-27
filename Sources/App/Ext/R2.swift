@@ -25,11 +25,11 @@ extension Application {
             typealias Value = R2Configuration
         }
 
-        public func post(_ data: ByteBuffer, id name: String) async throws {
+        public func post(_ data: Data, id name: String) async throws {
             let config = self.configuration
             let uri: URI = URI(string: config.endpoint + name)
             let response = try await application.client.post(uri) { req in
-                try req.content.encode(data, as: .any)
+                try req.content.encode(data, as: .binary)
                 req.headers.add(name: "X-Auth-Key", value: config.secretKey)
             }
             application.logger.info("Uploaded data to \(uri) with status \(response.status)")
