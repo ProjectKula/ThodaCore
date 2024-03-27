@@ -15,7 +15,8 @@ let package = Package(
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/redis.git", from: "4.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0")
+        .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
+        .package(url: "https://github.com/vapor/multipart-kit.git", from: "4.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -29,7 +30,8 @@ let package = Package(
                 .product(name: "JWT", package: "jwt"),
                 .product(name: "Redis", package: "redis"),
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "Crypto", package: "swift-crypto")
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "MultipartKit", package: "multipart-kit"),
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [
