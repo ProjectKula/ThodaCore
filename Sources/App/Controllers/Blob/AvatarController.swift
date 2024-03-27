@@ -17,6 +17,11 @@ struct AvatarController: RouteCollection {
     }
     
     func uploadAvatar(req: Request) async throws -> AvatarHashResponse {
+        let body = try req.content.decode(String.self)
+        print(body);
+
+        if true { throw Abort(.badRequest, reason: "Actually a good request") }
+        
         let token = try await getAndVerifyAccessToken(req: req)
         let user = try await RegisteredUser.find(token.id, on: req.db)
         
@@ -41,7 +46,9 @@ struct AvatarController: RouteCollection {
         }
         
         let hash: String = Insecure.MD5.hash(data: dataP).map({ String(format: "%02hhx", $0) }).joined()
+        print(hash);
         try await req.r2.post(data, id: hash)
+        print("ok cool \(hash)")
         user.avatarHash = hash
         try await user.update(on: req.db)
         return .init(hash: hash)
