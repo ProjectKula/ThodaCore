@@ -29,7 +29,8 @@ extension Application {
             let config = self.configuration
             let uri: URI = URI(string: config.endpoint + name)
             let response = try await application.client.post(uri) { req in
-                try req.content.encode(data, as: .binary)
+                let byteBuffer: ByteBuffer = .init(data: data)
+                req.body = byteBuffer
                 req.headers.add(name: "X-Auth-Key", value: config.secretKey)
             }
             application.logger.info("Uploaded data to \(uri) with status \(response.status)")
@@ -44,8 +45,4 @@ extension Application {
             }
         }
     }
-}
-
-extension Data: Content {
-    
 }
