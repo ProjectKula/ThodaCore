@@ -138,10 +138,10 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("id", at: \.id)
         }
         Field("likePost", at: Resolver.likePost) {
-            Argument("post", at: \.post)
+            Argument("id", at: \.post)
         }
         Field("unlikePost", at: Resolver.unlikePost) {
-            Argument("post", at: \.post)
+            Argument("id", at: \.post)
         }
         Field("followUser", at : Resolver.followUser) {
             Argument("id", at: \.id)

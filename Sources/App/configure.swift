@@ -56,6 +56,7 @@ public func configure(_ app: Application) async throws {
     app.r2.configuration.endpoint = appConfig.r2.endpoint
     app.r2.configuration.secretKey = appConfig.r2.secretKey
 
+    app.routes.defaultMaxBodySize = "512kb"
 
     // register routes
     try routes(app)
