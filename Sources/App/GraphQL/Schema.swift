@@ -69,6 +69,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("per", at: \.per)
         }
         Field("likesCount", at: Post.getLikesCount)
+        Field("selfLiked", at: Post.selfLiked)
     }
     
     Type(Confession.self) {
@@ -138,10 +139,10 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("id", at: \.id)
         }
         Field("likePost", at: Resolver.likePost) {
-            Argument("id", at: \.post)
+            Argument("id", at: \.id)
         }
         Field("unlikePost", at: Resolver.unlikePost) {
-            Argument("id", at: \.post)
+            Argument("id", at: \.id)
         }
         Field("followUser", at : Resolver.followUser) {
             Argument("id", at: \.id)

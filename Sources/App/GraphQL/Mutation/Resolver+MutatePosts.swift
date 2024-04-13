@@ -58,25 +58,25 @@ extension Resolver {
         return post
     }
     
-    func likePost(request: Request, arguments: LikePostArgs) async throws -> Int {
+    func likePost(request: Request, arguments: StringIdArgs) async throws -> Int {
         try await assertScope(request: request, .createPosts)
         let token = try await getAndVerifyAccessToken(req: request)
-        let lp: LikedPost = .init(postId: arguments.post, userId: token.id)
+        let lp: LikedPost = .init(postId: arguments.id, userId: token.id)
         try await lp.create(on: request.db)
-        return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.post).count().get()
+        return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
     }
     
-    func unlikePost(request: Request, arguments: LikePostArgs) async throws -> Int {
+    func unlikePost(request: Request, arguments: StringIdArgs) async throws -> Int {
         try await assertScope(request: request, .createPosts)
         let token = try await getAndVerifyAccessToken(req: request)
         let lp = try await LikedPost.query(on: request.db)
-            .filter(\.$post.$id == arguments.post)
+            .filter(\.$post.$id == arguments.id)
             .filter(\.$user.$id == token.id)
             .first()
             .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID"))
             .get()
         try await lp.delete(on: request.db)
-        return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.post).count().get()
+        return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
     }
 }
 
