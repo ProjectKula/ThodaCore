@@ -26,6 +26,21 @@ extension Resolver {
         return post
     }
     
+    func archivePost(request: Request, arguments: StringIdArgs) async throws -> Post {
+        let token = try await getAndVerifyAccessToken(req: request)
+        try await assertScope(request: request, .deletePosts)
+        let post = try await Post.query(on: request.db).filter(\.$id == arguments.id).first()
+            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
+        
+        if token.id != post.$creator.id {
+            request.logger.error("User \(token.id) tried to archive a post by \(post.$creator.id)")
+            throw Abort(.forbidden, reason: "Not post creator")
+        }
+
+        try await post.delete(on: request.db)        
+        return post
+    }
+
     func deletePost(request: Request, arguments: StringIdArgs) async throws -> Post {
         let token = try await getAndVerifyAccessToken(req: request)
         try await assertScope(request: request, .deletePosts)
@@ -37,7 +52,7 @@ extension Resolver {
             throw Abort(.forbidden, reason: "Not post creator")
         }
 
-        try await post.delete(on: request.db)        
+        try await post.delete(force: true, on: request.db)
         return post
     }
     
