@@ -26,6 +26,9 @@ final class Confession: Model, Content {
 
     @Timestamp(key: "deleted_at", on: .delete)
     var deletedAt: Date?
+
+    @Siblings(through: LikedConfession.self, from: \.$confession, to: \.$user)
+    var likes: [RegisteredUser]
     
     init() {
     }
