@@ -15,7 +15,7 @@ final class Post: Model, Content {
     @ID(custom: "id", generatedBy: .user)
     var id: String?
     
-    @Parent(key: "userId")
+    @Parent(key: "user_id")
     var creator: RegisteredUser
     
     @Field(key: "content")
@@ -26,9 +26,15 @@ final class Post: Model, Content {
     
     @Timestamp(key: "deleted_at", on: .delete)
     var deletedAt: Date?
+
+    @OptionalParent(key: "reply_id")
+    var reply: Post?
     
     @Siblings(through: LikedPost.self, from: \.$post, to: \.$user)
     var likes: [RegisteredUser]
+
+    @Children(for: \.$reply)
+    var replies: [Post]
     
     init() {
     }
