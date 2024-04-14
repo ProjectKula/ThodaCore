@@ -19,6 +19,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateLikedPosts())
     app.migrations.add(CreateFollowers())
     app.migrations.add(CreateConfessions())
+    app.migrations.add(CreateLikedConfessions())
     
     appConfig = AppConfig.firstLoad()
 
