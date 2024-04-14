@@ -70,6 +70,10 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         }
         Field("likesCount", at: Post.getLikesCount)
         Field("selfLiked", at: Post.selfLiked)
+        Field("replies", at: Post.getReplies) {
+            Argument("page", at: \.page)
+            Argument("per", at: \.per)
+        }
     }
     
     Type(Confession.self) {

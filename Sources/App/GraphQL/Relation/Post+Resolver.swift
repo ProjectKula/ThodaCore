@@ -26,6 +26,12 @@ extension Post {
             .paginate(.init(page: arguments.page, per: arguments.per))
     }
 
+    func getReplies(request: Request, arguments: PaginationArgs) async throws -> Page<Post> {
+        return try await self.$replies.query(on: request.db)
+            .sort(\.$createdAt, .descending)
+            .paginate(.init(page: arguments.page, per: arguments.per))
+    }
+
     func selfLiked(request: Request, arguments: NoArguments) async throws -> Bool {
         let token = try await getAndVerifyAccessToken(req: request)
         return try await self.$likes.isAttached(toID: token.id, on: request.db)
