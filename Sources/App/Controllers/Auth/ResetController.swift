@@ -7,13 +7,19 @@
 
 import Vapor
 import Fluent
+import Redis
+import Smtp
 
 struct ResetController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let e = routes.grouped("v0").grouped("auth").grouped("password")
 
         e.patch("change", use: changePassword)
-        e.post("reset", use: requestReset)
+        e.group("reset") { e in
+            e.post("request", use: requestReset)
+            e.post("verify", use: verifyReset)
+            e.post("password", use: passwordReset)
+        }
     }
 
     func changePassword(req: Request) async throws -> ChangePasswordResponse {
@@ -49,8 +55,57 @@ struct ResetController: RouteCollection {
         return .init(success: true)
     }
 
-    func requestReset(req: Request) async throws -> RegisteredUser {
-        fatalError("Not implemented")
+    func requestReset(req: Request) async throws -> ChangePasswordResponse {
+        let body = try req.content.decode(RequestResetRequest.self)
+        let user = try await RegisteredUser.query(on: req.db)
+          .filter(\.$email == body.email)
+          .first()
+          .unwrap(or: Abort(.notFound, reason: "User not found"))
+          .get()
+        let urlPrefix = "http://localhost:5173/reset"
+        let nonce = [UInt8].random(count: 64).base64
+        let _ = req.redis.setex(.init(nonce), to: user.id, expirationInSeconds: 43200)
+        let url = "\(urlPrefix)?nonce=\(nonce)"
+        let email = try Email(
+          from: EmailAddress(address: appConfig.smtp.email, name: "Thoda Core"),
+          to: [EmailAddress(address: user.email, name: user.name)],
+          subject: "Reset your password",
+          body: "A password reset has been requested for your account. If you did not request this, please ignore this email. To reset your password, click the following link: \(url)");
+        let sent = try await req.smtp.send(email) { message in
+            req.application.logger.info("\(message)")
+        }.get()
+        
+        do {
+            let _ = try sent.get()
+        } catch {
+            throw Abort(.internalServerError, reason: "Failed to send email: \(error.localizedDescription)")
+        }
+        
+        return .init(success: true)
+    }
+
+    func verifyReset(req: Request) async throws -> NonceResponse {
+        let nonce = try req.query.get(String.self, at: "nonce")
+        let _ = try await req.redis.get(.init(nonce), as: String.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
+        let id: Int = try await req.redis.delete(.init(nonce)).get()
+        let newNonce = [UInt8].random(count: 64).base64
+        let _ = req.redis.setex(.init(newNonce), to: id, expirationInSeconds: 600)
+        return .init(nonce: newNonce)
+    }
+
+    func passwordReset(req: Request) async throws -> ChangePasswordResponse {
+        let body = try req.content.decode(ChangePasswordRequest.self)
+        let nonce = try req.query.get(String.self, at: "nonce")
+        let _ = try await req.redis.get(.init(nonce), as: String.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
+        let id: Int = try await req.redis.delete(.init(nonce)).get()
+        if let password = try await UserPassword.query(on: req.db)
+             .filter(\.$id == id)
+             .first() {
+            try await password.delete(on: req.db)
+        }
+        let newPassword: UserPassword = .init(id: id, digest: try req.password.hash(body.newPassword))
+        try await newPassword.save(on: req.db)
+        return .init(success: true)
     }
 }
 
@@ -61,4 +116,12 @@ struct ChangePasswordRequest: Content {
 
 struct ChangePasswordResponse: Content {
     var success: Bool
+}
+
+struct RequestResetRequest: Content {
+    var email: String
+}
+
+struct NonceResponse: Content {
+    var nonce: String
 }
