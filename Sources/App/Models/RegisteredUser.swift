@@ -79,6 +79,10 @@ public final class RegisteredUser: Model, Content {
     @Siblings(through: Follower.self, from: \.$follower, to: \.$followed)
     var following: [RegisteredUser]
 
+    /// List of confessions this user has liked
+    @Siblings(through: LikedConfession.self, from: \.$user, to: \.$confession)
+    var likedConfessions: [Confession]
+
     public init() { }
 
     public init(collegeId: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, id: Int? = nil) {
