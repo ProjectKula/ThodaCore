@@ -142,6 +142,10 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("restorePost", at: Resolver.restorePost) {
             Argument("id", at: \.id)
         }
+        Field("replyToPost", at: Resolver.replyToPost) {
+            Argument("to", at: \.to)
+            Argument("content", at: \.content)
+        }
         Field("likePost", at: Resolver.likePost) {
             Argument("id", at: \.id)
         }
