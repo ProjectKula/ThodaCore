@@ -58,7 +58,7 @@ extension Resolver {
     
     func restorePost(request: Request, arguments: StringIdArgs) async throws -> Post {
         let token = try await getAndVerifyAccessToken(req: request)
-        try await assertScope(request: request, .deletePosts)
+        try await assertScope(request: request, .createPosts)
         let post = try await Post.query(on: request.db).withDeleted().filter(\.$id == arguments.id).first()
             .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
         
