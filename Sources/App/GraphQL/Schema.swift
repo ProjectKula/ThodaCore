@@ -157,5 +157,11 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("confess", at: Resolver.confess) {
             Argument("content", at: \.content)
         }
+        Field("likeConfession", at: Resolver.likeConfession) {
+            Argument("id", at: \.id)
+        }
+        Field("unlikeConfession", at: Resolver.unlikeConfession) {
+            Argument("id", at: \.id)
+        }
     }
 }
