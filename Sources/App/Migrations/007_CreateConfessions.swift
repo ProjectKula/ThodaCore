@@ -14,6 +14,7 @@ struct CreateConfessions: Migration {
             .field("creator", .int, .required, .references("registeredUsers", "id"))
             .field("content", .string, .required)
             .field("created_at", .datetime, .required)
+            .field("deleted_at", .datetime)
             .unique(on: "id")
             .create()
     }

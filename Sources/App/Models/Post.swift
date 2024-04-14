@@ -24,8 +24,8 @@ final class Post: Model, Content {
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
-    @Field(key: "deleted")
-    var deleted: Bool
+    @Timestamp(key: "deleted_at", on: .delete)
+    var deletedAt: Date?
     
     @Siblings(through: LikedPost.self, from: \.$post, to: \.$user)
     var likes: [RegisteredUser]
@@ -38,7 +38,6 @@ final class Post: Model, Content {
         self.id = id
         self.$creator.id = userId
         self.content = content
-        self.deleted = false
     }
     
     convenience init(userId: Int, content: String) {
