@@ -14,7 +14,7 @@ struct CreatePosts: Migration {
             .field("userId", .int, .required, .references("registeredUsers", "id"))
             .field("content", .string, .required)
             .field("created_at", .datetime, .required)
-            .field("deleted", .bool, .required)
+            .field("deleted_at", .datetime)
             .unique(on: "id")
             .create()
     }

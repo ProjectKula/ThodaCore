@@ -63,7 +63,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("creator", at: Post.getCreator)
         Field("content", at: \.content)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
-        Field("deleted", at: \.deleted)
+        Field("deletedAt", at: \.deletedAt?.timeIntervalSince1970)
         Field("likes", at: Post.getLikes) {
             Argument("page", at: \.page)
             Argument("per", at: \.per)
@@ -76,6 +76,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("id", at: \.id)
         Field("content", at: \.content)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
+        Field("deletedAt", at: \.deletedAt?.timeIntervalSince1970)
     }
     
     Type(PageMetadata.self) {

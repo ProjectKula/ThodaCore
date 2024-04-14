@@ -50,7 +50,6 @@ extension Resolver {
         let before = arguments.beforeDate ?? Date.now
 
         return try await Post.query(on: request.db)
-            .filter(\.$deleted == false)
             .filter(\.$createdAt < before)
             .sort(\.$createdAt, .descending)
             .limit(min(arguments.count, 10))
