@@ -133,6 +133,9 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("createPost", at: Resolver.createPost) {
             Argument("content", at: \.content)
         }
+        Field("archivePost", at: Resolver.archivePost) {
+            Argument("id", at: \.id)
+        }
         Field("deletePost", at: Resolver.deletePost) {
             Argument("id", at: \.id)
         }
