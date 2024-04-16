@@ -106,7 +106,7 @@ struct ResetController: RouteCollection {
         }
         let newPassword: UserPassword = .init(id: id, digest: try req.password.hash(body.newPassword))
         try await newPassword.save(on: req.db)
-        throw Abort(.noContent)
+        return .init(success: true)
     }
 }
 
