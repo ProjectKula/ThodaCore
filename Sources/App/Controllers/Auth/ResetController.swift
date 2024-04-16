@@ -86,8 +86,8 @@ struct ResetController: RouteCollection {
 
     func verifyReset(req: Request) async throws -> NonceResponse {
         let nonce = try req.query.get(String.self, at: "nonce")
-        let _ = try await req.redis.get(.init(nonce), as: String.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
-        let id: Int = try await req.redis.delete(.init(nonce)).get()
+        let id: Int = try await req.redis.get(.init(nonce), as: Int.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
+        let _ = try await req.redis.delete(.init(nonce)).get()
         let newNonce = [UInt8].random(count: 64).base64
         let _ = req.redis.setex(.init(newNonce), to: id, expirationInSeconds: 600)
         return .init(nonce: newNonce)
@@ -96,8 +96,8 @@ struct ResetController: RouteCollection {
     func passwordReset(req: Request) async throws -> ChangePasswordResponse {
         let body = try req.content.decode(ChangePasswordRequest.self)
         let nonce = try req.query.get(String.self, at: "nonce")
-        let _ = try await req.redis.get(.init(nonce), as: String.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
-        let id: Int = try await req.redis.delete(.init(nonce)).get()
+        let id: Int = try await req.redis.get(.init(nonce), as: Int.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
+        let _ = try await req.redis.delete(.init(nonce)).get()
         if let password = try await UserPassword.query(on: req.db)
              .filter(\.$id == id)
              .first() {
