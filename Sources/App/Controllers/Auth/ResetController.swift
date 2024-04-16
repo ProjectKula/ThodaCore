@@ -64,10 +64,11 @@ struct ResetController: RouteCollection {
             throw Abort(.noContent);
         }
         let urlPrefix = "http://localhost:5173/reset"
-        let nonce = [UInt8].random(count: 64).base64
-        let urlEncodedNonce = nonce.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-        let _ = req.redis.setex(.init(nonce), to: user.id, expirationInSeconds: 43200)
-        let url = "\(urlPrefix)?nonce=\(urlEncodedNonce)"
+        let nonce = [UInt8].random(count: 64).base64.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-")
+        let _ = req.redis.setex(.init(nonce), to: user.id, expirationInSeconds: 43200).map {
+            req.logger.info("Set password request nonce \(nonce)");
+        }
+        let url = "\(urlPrefix)?nonce=\(nonce)"
         let email = try Email(
           from: EmailAddress(address: appConfig.smtp.email, name: "Thoda Core"),
           to: [EmailAddress(address: user.email, name: user.name)],
@@ -82,9 +83,10 @@ struct ResetController: RouteCollection {
 
     func verifyReset(req: Request) async throws -> NonceResponse {
         let nonce = try req.query.get(String.self, at: "nonce")
+        req.logger.info("Received password request nonce \(nonce)")
         let id: Int = try await req.redis.get(.init(nonce), as: Int.self).unwrap(or: Abort(.notFound, reason: "Invalid or expired nonce")).get()
         let _ = try await req.redis.delete(.init(nonce)).get()
-        let newNonce = [UInt8].random(count: 64).base64
+        let newNonce = [UInt8].random(count: 64).base64.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-")
         let _ = req.redis.setex(.init(newNonce), to: id, expirationInSeconds: 600).map {
             req.logger.info("Set password reset nonce \(newNonce)")
         }
