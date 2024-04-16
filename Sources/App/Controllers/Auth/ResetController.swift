@@ -57,11 +57,11 @@ struct ResetController: RouteCollection {
 
     func requestReset(req: Request) async throws -> ChangePasswordResponse {
         let body = try req.content.decode(RequestResetRequest.self)
-        let user = try await RegisteredUser.query(on: req.db)
+        guard let user = try await RegisteredUser.query(on: req.db)
           .filter(\.$email == body.email)
-          .first()
-          .unwrap(or: Abort(.notFound, reason: "User not found"))
-          .get()
+          .first() else {
+            throw Abort(.noContent);
+        }
         let urlPrefix = "http://localhost:5173/reset"
         let nonce = [UInt8].random(count: 64).base64
         let _ = req.redis.setex(.init(nonce), to: user.id, expirationInSeconds: 43200)
@@ -81,7 +81,7 @@ struct ResetController: RouteCollection {
             throw Abort(.internalServerError, reason: "Failed to send email: \(error.localizedDescription)")
         }
         
-        return .init(success: true)
+        throw Abort(.noContent);
     }
 
     func verifyReset(req: Request) async throws -> NonceResponse {
@@ -105,7 +105,7 @@ struct ResetController: RouteCollection {
         }
         let newPassword: UserPassword = .init(id: id, digest: try req.password.hash(body.newPassword))
         try await newPassword.save(on: req.db)
-        return .init(success: true)
+        throw Abort(.noContent)
     }
 }
 
