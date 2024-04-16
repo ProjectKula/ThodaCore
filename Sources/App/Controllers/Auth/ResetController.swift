@@ -60,6 +60,7 @@ struct ResetController: RouteCollection {
         guard let user = try await RegisteredUser.query(on: req.db)
           .filter(\.$email == body.email)
           .first() else {
+            req.application.logger.warning("User with email \(body.email) not found")
             throw Abort(.noContent);
         }
         let urlPrefix = "http://localhost:5173/reset"
