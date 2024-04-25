@@ -76,7 +76,9 @@ struct ResetController: RouteCollection {
           from: EmailAddress(address: appConfig.smtp.email, name: "Thoda Core"),
           to: [EmailAddress(address: user.email, name: user.name)],
           subject: "Reset your password",
-          body: emailBodyStr ?? "A password reset has been requested for your account. If you did not request this, please ignore this email. To reset your password, click the following link: \(url)");
+          body: emailBodyStr ?? "A password reset has been requested for your account. If you did not request this, please ignore this email. To reset your password, click the following link: \(url)",
+          isBodyHtml: true
+        );
         let _: EventLoopFuture<Result<Bool, Error>> = req.smtp.send(email) { message in
             req.application.logger.info("\(message)")
         }
