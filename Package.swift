@@ -17,6 +17,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
         .package(url: "https://github.com/vapor/multipart-kit.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/leaf.git", from: "4.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -32,6 +33,7 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "MultipartKit", package: "multipart-kit"),
+                .product(name: "Leaf", package: "leaf"),
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [
