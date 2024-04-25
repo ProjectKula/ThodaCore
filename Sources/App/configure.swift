@@ -5,6 +5,7 @@ import Vapor
 import Smtp
 import Redis
 import JWT
+import Leaf
 
 var appConfig: AppConfig = .init()
 
@@ -58,6 +59,8 @@ public func configure(_ app: Application) async throws {
     app.r2.configuration.secretKey = appConfig.r2.secretKey
 
     app.routes.defaultMaxBodySize = "512kb"
+
+    app.views.use(.leaf)
 
     // register routes
     try routes(app)
