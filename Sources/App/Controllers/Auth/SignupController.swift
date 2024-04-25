@@ -62,12 +62,16 @@ struct SignupController: RouteCollection {
         }
         
         let code = try await getOrGenerateConfirmationCode(jwt: payload.state, req: req)
+
+        let emailBody: View = try await req.view.render("signup", ["code": code])
+        let body = emailBody.data.getString(at: 0, length: emailBody.data.readableBytes)
         
         let email = try Email(
             from: EmailAddress(address: appConfig.smtp.email, name: "Thoda Core"),
             to: [EmailAddress(address: user.email, name: user.name)],
             subject: "Your verification code",
-            body: "Your verification code is: \(code)"
+            body: body ?? "Your verification code is \(code)",
+            isBodyHtml: true
         )
         
         let sent = try await req.smtp.send(email) { message in
