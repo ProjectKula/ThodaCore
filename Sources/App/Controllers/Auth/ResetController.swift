@@ -69,11 +69,14 @@ struct ResetController: RouteCollection {
             req.logger.info("Set password request nonce \(nonce)");
         }
         let url = "\(urlPrefix)?nonce=\(nonce)"
+        let emailBody: View = try await req.view.render("reset", ["url": url])
+        let emailBodyStr = emailBody.data.getString(at: 0, length: emailBody.data.readableBytes)
+        
         let email = try Email(
           from: EmailAddress(address: appConfig.smtp.email, name: "Thoda Core"),
           to: [EmailAddress(address: user.email, name: user.name)],
           subject: "Reset your password",
-          body: "A password reset has been requested for your account. If you did not request this, please ignore this email. To reset your password, click the following link: \(url)");
+          body: emailBodyStr ?? "A password reset has been requested for your account. If you did not request this, please ignore this email. To reset your password, click the following link: \(url)");
         let _: EventLoopFuture<Result<Bool, Error>> = req.smtp.send(email) { message in
             req.application.logger.info("\(message)")
         }
