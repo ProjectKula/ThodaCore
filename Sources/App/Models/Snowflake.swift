@@ -16,8 +16,12 @@ public struct Snowflake {
     public let timestamp: Int64
     public let increment: UInt16
     public let rawValue: UInt64
+    
+    public var stringValue: String {
+        return String(rawValue, radix: 10)
+    }
 
-    private init() {
+    public init() {
         let now = Date()
         let time = Int64(now.timeIntervalSince(Snowflake.epoch) * 1000)
         let counter = Snowflake.counter.loadThenWrappingIncrement(ordering: .relaxed)
