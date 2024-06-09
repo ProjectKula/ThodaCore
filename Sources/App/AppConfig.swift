@@ -15,7 +15,7 @@ struct AppConfig: Codable {
     var auth: AuthConfig = .init()
     var external: ExternalConfig = .init()
     var r2: R2Config = .init()
-    var pid: Int
+    var pid: Int32
 
     init() {
         self.pid = ProcessInfo.processInfo.processIdentifier

@@ -52,15 +52,5 @@ final class Post: Model, Content {
 }
 
 func generateId(_ content: String) -> String {
-    let characters = "abcdefghijklmnopqrstuvwxyz0123456789"
-    var postId = ""
-    let timestamp = String(Int(Date().timeIntervalSince1970), radix: 36)
-    postId += timestamp
-    
-    for _ in 0 ..< 12 - postId.count {
-        let randomIndex = Int.random(in: 0...characters.count)
-        postId.insert(characters[characters.index(characters.startIndex, offsetBy: randomIndex)], at: content.startIndex)
-    }
-
-    return postId
+    return Snowflake.init().stringValue
 }
