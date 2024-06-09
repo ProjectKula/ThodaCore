@@ -15,6 +15,11 @@ struct AppConfig: Codable {
     var auth: AuthConfig = .init()
     var external: ExternalConfig = .init()
     var r2: R2Config = .init()
+    var pid: Int
+
+    init() {
+        self.pid = ProcessInfo.processInfo.processIdentifier
+    }
 
     struct PostgresConfig: Codable {
         var host: String = "localhost"
