@@ -23,6 +23,9 @@ final class Attachment: Model {
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
 
+    public init() {
+    }
+
     public init(parent: String, hash: String) {
         self.id = Snowflake.init().stringValue
         self.parentId = parent
