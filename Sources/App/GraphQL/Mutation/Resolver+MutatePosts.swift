@@ -11,11 +11,13 @@ import Fluent
 
 struct CreatePostArgs: Codable {
     var content: String
+    var attachments: [String]?
 }
 
 struct ReplyToPostArgs: Codable {
     var to: String
     var content: String
+    var attachments: [String]?
 }
 
 struct LikePostArgs: Codable {
@@ -23,13 +25,31 @@ struct LikePostArgs: Codable {
 }
 
 extension Resolver {
+    func newPost(post: Post, attachments: [String]?, on db: Database) async throws -> Post {
+        if attachments != nil && attachments!.count > 8 {
+            throw Abort(.badRequest, reason: "Too many attachments")
+        }
+        try await db.transaction { db in
+            try await post.create(on: db)
+            if let attachments = attachments {
+                for attachment in attachments {
+                    let attachment = Attachment(parent: try post.requireID(), hash: attachment)
+                    try await attachment.create(on: db)
+                }
+            }
+        }
+        return post
+    }
+    
     // MARK: Creating posts
     func createPost(request: Request, arguments: CreatePostArgs) async throws -> Post {
         let token = try await getAndVerifyAccessToken(req: request)
         try await assertScope(request: request, .createPosts)
+        if arguments.attachments != nil && arguments.attachments!.count > 8 {
+            throw Abort(.badRequest, reason: "Too many attachments")
+        }
         let post = Post(userId: token.id, content: arguments.content)
-        try await post.create(on: request.db)
-        return post
+        return try await newPost(post: post, attachments: arguments.attachments, on: request.db)
     }
 
     func replyToPost(request: Request, arguments: ReplyToPostArgs) async throws -> Post {
@@ -39,8 +59,7 @@ extension Resolver {
           .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
         let reply = Post(userId: token.id, content: arguments.content)
         reply.$reply.id = post.id
-        try await reply.create(on: request.db)
-        return reply
+        return try await newPost(post: reply, attachments: arguments.attachments, on: request.db)
     }
 
     // MARK: Deleting posts
@@ -63,7 +82,7 @@ extension Resolver {
         let token = try await getAndVerifyAccessToken(req: request)
         try await assertScope(request: request, .deletePosts)
         let post = try await Post.query(on: request.db).filter(\.$id == arguments.id).first()
-            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
+          .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
         
         if token.id != post.$creator.id {
             request.logger.error("User \(token.id) tried to delete a post by \(post.$creator.id)")
@@ -78,7 +97,7 @@ extension Resolver {
         let token = try await getAndVerifyAccessToken(req: request)
         try await assertScope(request: request, .createPosts)
         let post = try await Post.query(on: request.db).withDeleted().filter(\.$id == arguments.id).first()
-            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
+          .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID")).get()
         
         if token.id != post.$creator.id {
             request.logger.error("User \(token.id) tried to restore a post by \(post.$creator.id)")
@@ -92,21 +111,21 @@ extension Resolver {
     // MARK: Liking posts
     func likePost(request: Request, arguments: StringIdArgs) async throws -> Int {
         try await assertScope(request: request, .createPosts)
-        let token = try await getAndVerifyAccessToken(req: request)
-        let lp: LikedPost = .init(postId: arguments.id, userId: token.id)
-        try await lp.create(on: request.db)
-        return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
+            let token = try await getAndVerifyAccessToken(req: request)
+            let lp: LikedPost = .init(postId: arguments.id, userId: token.id)
+            try await lp.create(on: request.db)
+            return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
     }
     
     func unlikePost(request: Request, arguments: StringIdArgs) async throws -> Int {
         try await assertScope(request: request, .createPosts)
         let token = try await getAndVerifyAccessToken(req: request)
         let lp = try await LikedPost.query(on: request.db)
-            .filter(\.$post.$id == arguments.id)
-            .filter(\.$user.$id == token.id)
-            .first()
-            .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID"))
-            .get()
+          .filter(\.$post.$id == arguments.id)
+          .filter(\.$user.$id == token.id)
+          .first()
+          .unwrap(orError: Abort(.notFound, reason: "Could not find post with given ID"))
+          .get()
         try await lp.delete(on: request.db)
         return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
     }
