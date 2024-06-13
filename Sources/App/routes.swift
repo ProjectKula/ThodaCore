@@ -16,4 +16,5 @@ func routes(_ app: Application) throws {
     try app.register(collection: GoogleController())
     try app.register(collection: AvatarController())
     try app.register(collection: ResetController())
+    try app.register(collection: VerifyController())
 }
