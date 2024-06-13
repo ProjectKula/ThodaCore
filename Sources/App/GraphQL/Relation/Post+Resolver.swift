@@ -36,4 +36,12 @@ extension Post {
         let token = try await getAndVerifyAccessToken(req: request)
         return try await self.$likes.isAttached(toID: token.id, on: request.db)
     }
+
+    func getAttachments(request: Request, arguments: NoArguments) async throws -> [String] {
+        let id = try self.requireID()
+        return try await Attachment.query(on: request.db)
+          .filter(\.$parentId == id)
+          .all()
+          .map { $0.hash }
+    }
 }

@@ -39,7 +39,7 @@ final class Post: Model, Content {
     init() {
     }
     
-    // TODO: attachments (media), comments enabled, edited
+    // TODO: comments enabled, edited
     init(id: String, userId: Int, content: String) {
         self.id = id
         self.$creator.id = userId

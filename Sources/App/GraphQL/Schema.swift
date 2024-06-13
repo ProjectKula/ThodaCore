@@ -74,6 +74,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("page", at: \.page)
             Argument("per", at: \.per)
         }
+        Field("attachments", at: Post.getAttachments)
     }
     
     Type(Confession.self) {
@@ -136,6 +137,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         }
         Field("createPost", at: Resolver.createPost) {
             Argument("content", at: \.content)
+            Argument("attachments", at: \.attachments)
         }
         Field("archivePost", at: Resolver.archivePost) {
             Argument("id", at: \.id)
@@ -149,6 +151,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("replyToPost", at: Resolver.replyToPost) {
             Argument("to", at: \.to)
             Argument("content", at: \.content)
+            Argument("attachments", at: \.attachments)
         }
         Field("likePost", at: Resolver.likePost) {
             Argument("id", at: \.id)
