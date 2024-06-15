@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 final class Attachment: Model {
-    public static let schema = "posts"
+    public static let schema = "attachments"
 
     @ID(custom: "id", generatedBy: .user)
     var id: String?
