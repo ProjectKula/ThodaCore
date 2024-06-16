@@ -140,6 +140,10 @@ struct SignupController: RouteCollection {
         if payload.subject.value != "credentials" {
             throw Abort(.badRequest, reason: "Invalid bearer token")
         }
+
+        if (pwBody.password.count < 8) {
+            throw Abort(.badRequest, reason: "Password must be at least 8 characters long")
+        }
         
         let user = try await UnregisteredUser.query(on: req.db)
             .filter(\.$id == payload.id)
