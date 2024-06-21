@@ -10,10 +10,10 @@ import Fluent
 import Vapor
 
 extension Resolver {
-//    func getAllRegisteredUsers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-//        try await assertScope(request: request, [.query, .read])
-//        return try await RegisteredUser.query(on: request.db).all()
-//    }
+    func getAllRegisteredUsers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
+        try await verifyAccessToken(req: request)
+        return try await RegisteredUser.query(on: request.db).all()
+    }
     
     func getRegisteredUser(request: Request, arguments: IntIdArgs) async throws -> RegisteredUser {
         let user = try await getContextUser(request)

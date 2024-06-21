@@ -107,6 +107,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
     }
     
     Query {
+        Field("users", at: Resolver.getAllRegisteredUsers)
         Field("self", at: Resolver.getSelf)
         Field("user", at: Resolver.getRegisteredUser) {
             Argument("id", at: \.id)
