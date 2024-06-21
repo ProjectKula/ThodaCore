@@ -14,14 +14,23 @@ struct AvatarController: RouteCollection {
         let e = routes.grouped("v0")
         
         e.post("avatar", use: uploadAvatar)
+        e.delete("avatar", use: deleteAvatar)
+    }
+
+    func deleteAvatar(req: Request) async throws -> HTTPResponseStatus {
+        let token = try await getAndVerifyAccessToken(req: req)
+        let user = try await RegisteredUser.find(token.id, on: req.db)
+        user?.avatarHash = nil
+        do {
+            try await user?.save(on: req.db)
+        } catch {
+            req.logger.error("Error saving user: \(error)")
+        }
+        return HTTPStatus.ok
     }
     
     func uploadAvatar(req: Request) async throws -> AvatarHashResponse {
         print("uploading avatar")
-        //let body = try req.content.decode(AvatarRequest.self)
-        //print(body.avatar.base64EncodedString())
-
-        //if true { throw Abort(.badRequest, reason: "Actually a good request") }
         
         let token = try await getAndVerifyAccessToken(req: req)
         let user = try await RegisteredUser.find(token.id, on: req.db)
@@ -49,7 +58,7 @@ struct AvatarController: RouteCollection {
         let hash: String = Insecure.MD5.hash(data: dataP).map({ String(format: "%02hhx", $0) }).joined()
         print(hash);
         try await req.r2.post(dataP, id: hash)
-        print("ok cool \(hash)")
+        req.logger.info("Updated avatar for user \(user.id!) with hash \(hash)")
         user.avatarHash = hash
         try await user.update(on: req.db)
         return .init(hash: hash)
