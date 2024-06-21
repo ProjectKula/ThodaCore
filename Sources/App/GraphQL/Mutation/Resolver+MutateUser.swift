@@ -41,7 +41,7 @@ extension Resolver {
         
         try await user.$following.attach(target, on: request.db)
         
-        return try await user.$following.query(on: request.db).count()
+        return try await target.$following.query(on: request.db).count()
     }
     
     func unfollowUser(request: Request, arguments: IntIdArgs) async throws -> Int {
@@ -57,6 +57,6 @@ extension Resolver {
         
         try await user.$following.detach(target, on: request.db)
         
-        return try await user.$following.query(on: request.db).count()
+        return try await target.$following.query(on: request.db).count()
     }
 }
