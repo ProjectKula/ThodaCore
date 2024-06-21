@@ -127,6 +127,9 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("page", at: \.page)
             Argument("per", at: \.per)
         }
+        Field("confession", at: Resolver.getConfessionById) {
+            Argument("id", at: \.id)
+        }
         Field("latestConfession", at: Resolver.getLatestConfession)
     }
     
