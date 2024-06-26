@@ -83,6 +83,10 @@ public final class RegisteredUser: Model, Content {
     @Siblings(through: LikedConfession.self, from: \.$user, to: \.$confession)
     var likedConfessions: [Confession]
 
+    /// List of notifications
+    @Children(for: \.$targetUser)
+    var notifications: [Notification]
+
     public init() { }
 
     public init(collegeId: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, id: Int? = nil) {

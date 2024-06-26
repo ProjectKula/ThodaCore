@@ -57,4 +57,8 @@ extension RegisteredUser {
         let token = try await getAndVerifyAccessToken(req: request)
         return try await self.$followers.isAttached(toID: token.id, on: request.db)
     }
+
+    func getNotifications(request: Request, arguments: NoArguments) async throws -> [Notification] {
+        return try await self.$notifications.query(on: request.db).all()
+    }
 }

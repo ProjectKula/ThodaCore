@@ -16,6 +16,13 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
     Scalar(UUID.self)
     Scalar(Date.self)
 
+    Enum(Notification.NotificationType.self) {
+        Value(.follow)
+        Value(.like)
+        Value(.comment)
+        Value(.mention)
+    }
+
     Type(UnregisteredUser.self) {
         Field("collegeId", at: \.id)
         Field("name", at: \.name)
@@ -104,6 +111,15 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
     Type(Page<RegisteredUser>.self) {
         Field("items", at: \.items)
         Field("metadata", at: \.metadata)
+    }
+
+    Type(Notification.self) {
+        Field("id", at : \.id)
+        Field("targetUser", at: Notification.getTargetUser)
+        Field("referenceUser", at: Notification.getReferenceUser)
+        Field("referencePost", at: Notification.getReferencePost)
+        Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
+        Field("type", at: \.type)
     }
     
     Query {
