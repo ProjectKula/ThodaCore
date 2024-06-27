@@ -38,6 +38,9 @@ extension Resolver {
             .first() else {
             throw Abort(.notFound, reason: "User \(arguments.id) not found")
         }
+
+        let notif: Notification = .follow(targetUser: target, referenceUser: user)
+        try await notif.create(on: request.db)
         
         try await user.$following.attach(target, on: request.db)
         

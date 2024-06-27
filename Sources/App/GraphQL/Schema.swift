@@ -194,5 +194,9 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("unlikeConfession", at: Resolver.unlikeConfession) {
             Argument("id", at: \.id)
         }
+        Field("readNotification", at: Resolver.readNotification) {
+            Argument("id", at: \.id)
+        }
+        Field("readAllNotifications", at: Resolver.readAllNotifications)
     }
 }
