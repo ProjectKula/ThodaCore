@@ -62,6 +62,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("followedBySelf", at: RegisteredUser.followedBySelf)
         Field("followsSelf", at: RegisteredUser.followsSelf)
         Field("avatarHash", at: \.avatarHash)
+        Field("notifications", at: RegisteredUser.getNotifications)
     }
     
     Type(Post.self) {
