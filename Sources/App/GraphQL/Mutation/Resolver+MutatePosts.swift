@@ -113,7 +113,13 @@ extension Resolver {
         try await assertScope(request: request, .createPosts)
             let token = try await getAndVerifyAccessToken(req: request)
             let lp: LikedPost = .init(postId: arguments.id, userId: token.id)
+            let post: Post? = try await Post.find(arguments.id, on: request.db)
+            guard let post = post else {
+                throw Abort(.notFound, reason: "Could not find post with given ID")
+            }            
             try await lp.create(on: request.db)
+            let notif: Notification = .like(target: post.$creator.id, user: token.id, post: arguments.id)
+            try await notif.create(on: request.db)
             return try await LikedPost.query(on: request.db).filter(\.$post.$id == arguments.id).count().get()
     }
     
