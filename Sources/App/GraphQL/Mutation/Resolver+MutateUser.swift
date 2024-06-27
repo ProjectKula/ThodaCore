@@ -39,7 +39,7 @@ extension Resolver {
             throw Abort(.notFound, reason: "User \(arguments.id) not found")
         }
 
-        let notif: Notification = .follow(targetUser: target, referenceUser: user)
+        let notif: Notification = .follow(targetUser: try target.requireID(), referenceUser: try user.requireID())
         try await notif.create(on: request.db)
         
         try await user.$following.attach(target, on: request.db)
