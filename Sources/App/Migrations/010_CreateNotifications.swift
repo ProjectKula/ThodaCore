@@ -18,8 +18,9 @@ struct CreateNotifications: AsyncMigration {
               .create()
             try await db.schema("notifications")
               .field("id", .string, .required)
-              .field("target_user_id", .int, .references("registeredUsers", "id"))
-              .field("target_post_id", .string, .references("posts", "id"))
+              .field("target_user_id", .int, .references("registeredUsers", "id"), .required)
+              .field("reference_user_id", .int, .references("registeredUsers", "id"))
+              .field("reference_post_id", .string, .references("posts", "id"))
               .field("created_at", .datetime, .required)
               .field("deleted_at", .datetime)
               .field("type", type, .required)
@@ -29,6 +30,7 @@ struct CreateNotifications: AsyncMigration {
     }
 
     func revert(on database: Database) async throws {
-        return try await database.schema("notifications").delete()
+        try await database.schema("notifications").delete()
+        try await database.enum("notificaion_type").delete()
     }
 }
