@@ -61,4 +61,8 @@ extension RegisteredUser {
     func getNotifications(request: Request, arguments: NoArguments) async throws -> [Notification] {
         return try await self.$notifications.query(on: request.db).all()
     }
+
+    func getBadges(request: Request, arguments: NoArguments) async throws -> [Badge] {
+        return try await self.$badges.query(on: request.db).all()
+    }
 }

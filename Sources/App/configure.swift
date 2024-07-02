@@ -23,6 +23,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateLikedConfessions())
     app.migrations.add(CreateAttachments())
     app.migrations.add(CreateNotifications())
+    app.migrations.add(CreateBadges())
     
     appConfig = AppConfig.firstLoad()
 
