@@ -15,6 +15,7 @@ struct AccountQuery: Encodable {}
 let schema = try! Graphiti.Schema<Resolver, Request> {
     Scalar(UUID.self)
     Scalar(Date.self)
+    Scalar(Badge.BadgeType.self)
 
     Enum(Notification.NotificationType.self) {
         Value(.follow)
@@ -63,6 +64,7 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("followsSelf", at: RegisteredUser.followsSelf)
         Field("avatarHash", at: \.avatarHash)
         Field("notifications", at: RegisteredUser.getNotifications)
+        Field("badges", at: RegisteredUser.getBadges)
     }
     
     Type(Post.self) {
@@ -119,6 +121,13 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("targetUser", at: Notification.getTargetUser)
         Field("referenceUser", at: Notification.getReferenceUser)
         Field("referencePost", at: Notification.getReferencePost)
+        Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
+        Field("type", at: \.type)
+    }
+
+    Type(Badge.self) {
+        Field("id", at: \.id)
+        Field("user", at: Badge.getUser)
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("type", at: \.type)
     }

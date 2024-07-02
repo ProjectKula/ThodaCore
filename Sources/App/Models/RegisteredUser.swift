@@ -87,6 +87,10 @@ public final class RegisteredUser: Model, Content {
     @Children(for: \.$targetUser)
     var notifications: [Notification]
 
+    /// List of badges
+    @Children(for: \.$user)
+    var badges: [Badge]
+
     public init() { }
 
     public init(collegeId: String, name: String, phone: String, email: String, personalEmail: String? = nil, branch: String, gender: String, pronouns: String? = nil, bio: String? = nil, intakeYear: Int, id: Int? = nil) {
