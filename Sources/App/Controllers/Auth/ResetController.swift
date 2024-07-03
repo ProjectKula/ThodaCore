@@ -23,7 +23,7 @@ struct ResetController: RouteCollection {
     }
 
     func changePassword(req: Request) async throws -> ChangePasswordResponse {
-        let token = try await getAndVerifyAccessToken(req: req)
+        let token = try await getAccessToken(req: req)
         guard let auth = try await UserPassword.query(on: req.db)
                 .filter(\.$id == token.id)
                 .first() else {

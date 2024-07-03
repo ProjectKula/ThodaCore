@@ -11,17 +11,15 @@ import Vapor
 
 extension Resolver {
     func getAllRegisteredUsers(request: Request, arguments: NoArguments) async throws -> [RegisteredUser] {
-        try await verifyAccessToken(req: request)
         return try await RegisteredUser.query(on: request.db).all()
     }
     
     func getRegisteredUser(request: Request, arguments: IntIdArgs) async throws -> RegisteredUser {
-        let user = try await getContextUser(request)
         let target = try await RegisteredUser.find(arguments.id, on: request.db)
             .unwrap(or: Abort(.notFound, reason: "User \(arguments.id) not found"))
             .get()
         
-        if (target.id != user.id) {
+        if (target.id != request.token.id) {
             target.personalEmail = nil
             target.phone = ""
         }
@@ -34,9 +32,6 @@ extension Resolver {
     }
                         
     func getContextUser(_ request: Request) async throws -> RegisteredUser {
-        let token = try await getAndVerifyAccessToken(req: request)
-        return try await RegisteredUser.find(token.id, on: request.db)
-            .unwrap(or: Abort(.notFound, reason: "Context user \(token.id) not found"))
-            .get()
+        return try await request.loaders.users.load(key: request.token.id, on: request.eventLoop)
     }
 }

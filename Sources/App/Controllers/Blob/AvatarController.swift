@@ -18,7 +18,7 @@ struct AvatarController: RouteCollection {
     }
 
     func deleteAvatar(req: Request) async throws -> HTTPResponseStatus {
-        let token = try await getAndVerifyAccessToken(req: req)
+        let token = try await getAccessToken(req: req)
         let user = try await RegisteredUser.find(token.id, on: req.db)
         user?.avatarHash = nil
         do {
@@ -32,7 +32,7 @@ struct AvatarController: RouteCollection {
     func uploadAvatar(req: Request) async throws -> AvatarHashResponse {
         print("uploading avatar")
         
-        let token = try await getAndVerifyAccessToken(req: req)
+        let token = try await getAccessToken(req: req)
         let user = try await RegisteredUser.find(token.id, on: req.db)
         
         guard let user = user else {

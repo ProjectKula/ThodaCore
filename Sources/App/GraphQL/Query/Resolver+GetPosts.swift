@@ -29,7 +29,6 @@ struct PostsPaginationArgs: Codable {
 
 extension Resolver {
     func getPostsByUser(request: Request, arguments: PostsPaginationArgs) async throws -> Page<Post> {
-        try await verifyAccessToken(req: request)
         return try await Post.query(on: request.db)
             .filter(\.$creator.$id == arguments.creator)
             .sort(\.$createdAt, .descending)
@@ -37,7 +36,6 @@ extension Resolver {
     }
     
     func getPostById(request: Request, arguments: StringIdArgs) async throws -> Post {
-        try await verifyAccessToken(req: request)
         return try await Post.query(on: request.db)
             .filter(\.$id == arguments.id)
             .first()
@@ -46,7 +44,6 @@ extension Resolver {
     }
     
     func getRecentPosts(request: Request, arguments: RecentPostsArgs) async throws -> [Post] {
-        try await verifyAccessToken(req: request)
         let before = arguments.beforeDate ?? Date.now
 
         return try await Post.query(on: request.db)

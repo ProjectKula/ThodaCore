@@ -11,7 +11,7 @@ import Fluent
 
 extension Resolver {
     func confess(request: Request, arguments: CreatePostArgs) async throws -> Confession {
-        let token = try await getAndVerifyAccessToken(req: request)
+        let token = request.token
         try await assertScope(request: request, .confessions)
         let confession: Confession = .init(creatorId: token.id, content: arguments.content)
         try await confession.create(on: request.db)

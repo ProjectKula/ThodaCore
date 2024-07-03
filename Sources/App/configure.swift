@@ -42,7 +42,7 @@ public func configure(_ app: Application) async throws {
         allowedHeaders: [.accept, .authorization, .contentType, .origin, .xRequestedWith, .userAgent, .accessControlAllowOrigin]
     )
 
-    app.middleware.use(DataLoaderMiddleware())
+    app.middleware.use(GraphQLMiddleware())
     app.middleware.use(CORSMiddleware(configuration: corsConfiguration), at: .beginning)
     
     app.smtp.configuration.hostname = appConfig.smtp.host

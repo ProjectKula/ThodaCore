@@ -35,10 +35,25 @@ open class IdentityToken: JWTPayload {
     
     public var perm: Int
     
-    public var issuer: IssuerClaim = "thodaCore"
+    public var issuer: IssuerClaim = "thodacore"
     
     open func verify(using signer: JWTSigner) throws {
         try self.expiration.verifyNotExpired()
+    }
+}
+
+struct IdentityTokenStorageKey: StorageKey {
+    typealias Value = IdentityToken
+}
+
+extension Request {
+    var token: IdentityToken {
+        get {
+            self.storage[IdentityTokenStorageKey.self]!
+        }
+        set {
+            self.storage[IdentityTokenStorageKey.self] = newValue
+        }
     }
 }
 
@@ -98,7 +113,17 @@ func blacklistToken(req: Request, token: some IdentityToken) async throws {
 
 // MARK: Token verification
 
-func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
+// TODO: temporary method, remove after testing
+func getAccessToken(req: Request) async throws -> IdentityToken {
+    do {
+        return try await getAndVerifyAccessToken(req: req)
+    } catch {
+        req.logger.error("Failed to verify access token: \(error)")
+        throw Abort(.unauthorized, reason: "Invalid access token")
+    }
+}
+
+fileprivate func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
     let payload = try req.jwt.verify(as: IdentityToken.self)
     
     if !(try await req.redis.get(.init(stringLiteral: payload.token)).get().isNull) {
@@ -108,7 +133,7 @@ func getAndVerifyAccessToken(req: Request) async throws -> IdentityToken {
     return payload
 }
 
-func verifyAccessToken(req: Request) async throws {
+fileprivate func verifyAccessToken(req: Request) async throws {
     _ = try await getAndVerifyAccessToken(req: req)
 }
 
