@@ -9,15 +9,14 @@ import Fluent
 import Vapor
 import Graphiti
 
-// TODO: use a data loader (these are N+1 queries)
+// TODO: data loader for the pagination things?
 extension Post {
-    // TODO: cache likes count
     func getLikesCount(request: Request, arguments: NoArguments) async throws -> Int {
-        return try await self.$likes.query(on: request.db).count()
+        return try await request.loaders.postLikes.load(key: try self.requireID(), on: request.eventLoop)
     }
     
     func getCreator(request: Request, arguments: NoArguments) async throws -> RegisteredUser {
-        return try await self.$creator.get(on: request.db)
+        return try await request.loaders.users.load(key: self.$creator.id, on: request.eventLoop)
     }
     
     func getLikes(request: Request, arguments: PaginationArgs) async throws -> Page<RegisteredUser> {
@@ -32,6 +31,7 @@ extension Post {
             .paginate(.init(page: arguments.page, per: arguments.per))
     }
 
+    // TODO: data loader for this
     func selfLiked(request: Request, arguments: NoArguments) async throws -> Bool {
         let token = try await getAndVerifyAccessToken(req: request)
         return try await self.$likes.isAttached(toID: token.id, on: request.db)
@@ -40,13 +40,10 @@ extension Post {
     func getAttachments(request: Request, arguments: NoArguments) async throws -> [String] {
         let id = try self.requireID()
         do {
-            return try await Attachment.query(on: request.db)
-              .filter(\.$parentId == id)
-              .all()
-              .map { $0.hash }
+            return try await request.loaders.attachments.load(key: try self.requireID(), on: request.eventLoop).map { $0.hash }
         } catch {
             request.logger.error("Failed to fetch attachments for post \(id): \(String(reflecting: error))")
             throw Abort(.internalServerError, reason: "Failed to fetch attachments")
         }
-                                                                                  }
-                                                                                  }
+    }
+}

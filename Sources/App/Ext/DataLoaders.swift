@@ -12,6 +12,8 @@ import DataLoader
 class DataLoaders {
     public let request: Request
 
+    // MARK: - User
+    
     public lazy var users: DataLoader<Int, RegisteredUser> = DataLoader<Int, RegisteredUser>() { keys in
         return RegisteredUser.query(on: self.request.db)
           .filter(\.$id ~~ keys)
@@ -29,7 +31,7 @@ class DataLoaders {
           .all()
           .map { followers in
               keys.map { key in
-                  DataLoaderFutureValue.success(followers.filter { $0.followed.id! == key }.count)
+                  DataLoaderFutureValue.success(followers.filter { $0.$followed.id == key }.count)
               }
           }
     }
@@ -40,18 +42,7 @@ class DataLoaders {
           .all()
           .map { following in
               keys.map { key in
-                  DataLoaderFutureValue.success(following.filter { $0.follower.id! == key }.count)
-              }
-          }
-    }
-
-    public lazy var postLikes: DataLoader<String, Int> = DataLoader<String, Int>() { keys in
-        return LikedPost.query(on: self.request.db)
-          .filter(\.$post.$id ~~ keys)
-          .all()
-          .map { likes in
-              keys.map { key in
-                  DataLoaderFutureValue.success(likes.filter { $0.post.id! == key }.count)
+                  DataLoaderFutureValue.success(following.filter { $0.$follower.id == key }.count)
               }
           }
     }
@@ -62,7 +53,32 @@ class DataLoaders {
           .all()
           .map { badges in
               keys.map { key in
-                  DataLoaderFutureValue.success(badges.filter { $0.user.id! == key })
+                  DataLoaderFutureValue.success(badges.filter { $0.$user.id == key })
+              }
+          }
+    }
+
+    // MARK: - Post
+    
+    // TODO: cache likes count?
+    public lazy var postLikes: DataLoader<String, Int> = DataLoader<String, Int>() { keys in
+        return LikedPost.query(on: self.request.db)
+          .filter(\.$post.$id ~~ keys)
+          .all()
+          .map { likes in
+              keys.map { key in
+                  DataLoaderFutureValue.success(likes.filter { $0.$post.id == key }.count)
+              }
+          }
+    }
+
+    public lazy var attachments: DataLoader<String, [Attachment]> = DataLoader<String, [Attachment]>() { keys in
+        return Attachment.query(on: self.request.db)
+          .filter(\.$parentId ~~ keys)
+          .all()
+          .map { attachments in
+              keys.map { key in
+                  DataLoaderFutureValue.success(attachments.filter { $0.parentId == key })
               }
           }
     }

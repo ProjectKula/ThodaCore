@@ -11,6 +11,6 @@ import Graphiti
 
 extension Badge {
     func getUser(request: Request, arguments: NoArguments) async throws -> RegisteredUser {
-        return try await self.$user.get(on: request.db)
+        return try await request.loaders.users.load(key: self.$user.id, on: request.eventLoop)
     }
 }

@@ -11,6 +11,10 @@ import Graphiti
 
 // TODO: use a data loader (these are N+1 queries)
 extension RegisteredUser {
+    func isSelf(request: Request, arguments: NoArguments) async throws -> Bool {
+        return try await getAndVerifyAccessToken(req: request).id == self.id
+    }
+    
     func getPosts(request: Request, arguments: PaginationArgs) async throws -> Page<Post> {
         return try await self.$posts.query(on: request.db)
             .sort(\.$id)
@@ -23,10 +27,6 @@ extension RegisteredUser {
             .paginate(.init(page: arguments.page, per: arguments.per))
     }
     
-    func isSelf(request: Request, arguments: NoArguments) async throws -> Bool {
-        return try await getAndVerifyAccessToken(req: request).id == self.id
-    }
-    
     func getFollowers(request: Request, arguments: PaginationArgs) async throws -> Page<RegisteredUser> {
         return try await self.$followers.query(on: request.db)
             .sort(\.$id)
@@ -34,7 +34,7 @@ extension RegisteredUser {
     }
     
     func getFollowerCount(request: Request, arguments: NoArguments) async throws -> Int {
-        return try await self.$followers.query(on: request.db).count()
+        return try await request.loaders.followers.load(key: try self.requireID(), on: request.eventLoop)
     }
     
     func getFollowing(request: Request, arguments: PaginationArgs) async throws -> Page<RegisteredUser> {
@@ -44,7 +44,7 @@ extension RegisteredUser {
     }
     
     func getFollowingCount(request: Request, arguments: NoArguments) async throws -> Int {
-        return try await self.$following.query(on: request.db).count()
+        return try await request.loaders.following.load(key: try self.requireID(), on: request.eventLoop)
     }
     
     // self refers to the context user, not the user being resolved
@@ -57,7 +57,7 @@ extension RegisteredUser {
         let token = try await getAndVerifyAccessToken(req: request)
         return try await self.$followers.isAttached(toID: token.id, on: request.db)
     }
-
+    
     func getNotifications(request: Request, arguments: NoArguments) async throws -> [Notification] {
         let token = try await getAndVerifyAccessToken(req: request)
         if token.id != self.id {
@@ -67,6 +67,6 @@ extension RegisteredUser {
     }
 
     func getBadges(request: Request, arguments: NoArguments) async throws -> [Badge] {
-        return try await self.$badges.query(on: request.db).all()
+        return try await request.loaders.badges.load(key: try self.requireID(), on: request.eventLoop)
     }
 }
