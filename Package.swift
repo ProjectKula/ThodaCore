@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/multipart-kit.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/leaf.git", from: "4.0.0"),
         .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.2.0")),
+        .package(url: "https://github.com/GraphQLSwift/DataLoader", .upToNextMajor(from: "2.2.0")),
     ],
     targets: [
         .executableTarget(
@@ -36,6 +37,7 @@ let package = Package(
                 .product(name: "MultipartKit", package: "multipart-kit"),
                 .product(name: "Leaf", package: "leaf"),
                 .product(name: "Atomics", package: "swift-atomics"),
+                .product(name: "DataLoader", package: "DataLoader"),
             ]
         ),
         .testTarget(name: "AppTests", dependencies: [

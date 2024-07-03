@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "dataloader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GraphQLSwift/DataLoader",
+      "state" : {
+        "revision" : "5c27005aed25bc1dda9c5ad30289f96913500f83",
+        "version" : "2.2.0"
+      }
+    },
+    {
       "identity" : "fluent",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",
