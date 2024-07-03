@@ -15,6 +15,7 @@ struct AppConfig: Codable {
     var auth: AuthConfig = .init()
     var external: ExternalConfig = .init()
     var r2: R2Config = .init()
+    var origin: String = "http://localhost:5173"
 
     init() {
     }

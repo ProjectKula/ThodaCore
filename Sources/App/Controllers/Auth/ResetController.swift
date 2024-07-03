@@ -63,7 +63,7 @@ struct ResetController: RouteCollection {
             req.application.logger.warning("User with email \(body.email) not found")
             throw Abort(.noContent);
         }
-        let urlPrefix = "http://localhost:5173/reset"
+        let urlPrefix = "\(appConfig.origin)/reset"
         let nonce = [UInt8].random(count: 64).base64.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-")
         let _ = req.redis.setex(.init(nonce), to: user.id, expirationInSeconds: 43200).map {
             req.logger.info("Set password request nonce \(nonce)");
