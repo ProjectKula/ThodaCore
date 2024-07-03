@@ -12,7 +12,7 @@ import Graphiti
 // TODO: use a data loader (these are N+1 queries)
 extension RegisteredUser {
     func isSelf(request: Request, arguments: NoArguments) async throws -> Bool {
-        return try await getAndVerifyAccessToken(req: request).id == self.id
+        return request.token.id == self.id
     }
     
     func getPosts(request: Request, arguments: PaginationArgs) async throws -> Page<Post> {
@@ -49,18 +49,15 @@ extension RegisteredUser {
     
     // self refers to the context user, not the user being resolved
     func followsSelf(request: Request, arguments: NoArguments) async throws -> Bool {
-        let token = try await getAndVerifyAccessToken(req: request)
-        return try await self.$following.isAttached(toID: token.id, on: request.db)
+        return try await self.$following.isAttached(toID: request.token.id, on: request.db)
     }
     
     func followedBySelf(request: Request, arguments: NoArguments) async throws -> Bool {
-        let token = try await getAndVerifyAccessToken(req: request)
-        return try await self.$followers.isAttached(toID: token.id, on: request.db)
+        return try await self.$followers.isAttached(toID: request.token.id, on: request.db)
     }
     
     func getNotifications(request: Request, arguments: NoArguments) async throws -> [Notification] {
-        let token = try await getAndVerifyAccessToken(req: request)
-        if token.id != self.id {
+        if request.token.id != self.id {
             throw Abort(.forbidden)
         }
         return try await self.$notifications.query(on: request.db).all()

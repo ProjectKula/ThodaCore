@@ -10,13 +10,11 @@ import Fluent
 
 
 func checkScope(request: Request, _ scopes: [Scopes]) async throws -> Bool {
-    let token = try await getAndVerifyAccessToken(req: request)
-    return token.perm.hasScope(scopes)
+    return request.token.perm.hasScope(scopes)
 }
 
 func checkScope(request: Request, _ scope: Scopes) async throws -> Bool {
-    let token = try await getAndVerifyAccessToken(req: request)
-    return token.perm.hasScope(scope)
+    return request.token.perm.hasScope(scope)
 }
 
 func assertScope(request: Request, _ scopes: [Scopes]) async throws {

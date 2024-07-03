@@ -11,7 +11,7 @@ import Fluent
 struct VerifyController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         routes.grouped("v0").grouped("auth").get("verify") { req in
-            try await verifyAccessToken(req: req)
+            _ = try await getAccessToken(req: req)
             return HTTPStatus.ok
         }
     }

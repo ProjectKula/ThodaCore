@@ -33,8 +33,7 @@ extension Post {
 
     // TODO: data loader for this
     func selfLiked(request: Request, arguments: NoArguments) async throws -> Bool {
-        let token = try await getAndVerifyAccessToken(req: request)
-        return try await self.$likes.isAttached(toID: token.id, on: request.db)
+        return try await self.$likes.isAttached(toID: request.token.id, on: request.db)
     }
 
     func getAttachments(request: Request, arguments: NoArguments) async throws -> [String] {
