@@ -59,6 +59,10 @@ extension RegisteredUser {
     }
 
     func getNotifications(request: Request, arguments: NoArguments) async throws -> [Notification] {
+        let token = try await getAndVerifyAccessToken(req: request)
+        if token.id != self.id {
+            throw Abort(.forbidden)
+        }
         return try await self.$notifications.query(on: request.db).all()
     }
 
