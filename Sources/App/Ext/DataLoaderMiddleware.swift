@@ -10,7 +10,9 @@ import Vapor
 
 struct DataLoaderMiddleware: AsyncMiddleware {
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
-        request.loaders = DataLoaders()
+        if (request.method == .POST) {
+            request.loaders = DataLoaders()
+        }
         return try await next.respond(to: request)
     }
 }
