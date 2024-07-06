@@ -8,8 +8,9 @@
 import Vapor
 import Fluent
 import Foundation
+import FluentPostgresDriver
 
-final class Confession: Model, Content {
+final class Confession: Model, Content, PostgresDecodable {
     static var schema: String = "confessions"
     
     @ID(custom: "id", generatedBy: .user)
