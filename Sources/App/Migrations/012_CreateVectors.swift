@@ -30,7 +30,7 @@ struct CreateVectors: AsyncMigration {
 
         try await pgdb.sql().execute(sql: SQLRaw("""
                                                    UPDATE "registeredUsers"
-                                                   SET tsv = setweight(to_tsvector(coalesce(collegeId, '')), 'A') ||
+                                                   SET tsv = setweight(to_tsvector(coalesce(collegeid, '')), 'A') ||
                                                    setweight(to_tsvector(coalesce(name, '')), 'A') ||
                                                    setweight(to_tsvector(coalesce(phone, '')), 'B') ||
                                                    setweight(to_tsvector(coalesce(email, '')), 'A') ||
@@ -59,7 +59,7 @@ struct CreateVectors: AsyncMigration {
                                                    CREATE FUNCTION registeredUsers_tsv_trigger() RETURNS trigger AS $$
                                                    begin
                                                    new.tsv :=
-                                                   setweight(to_tsvector(coalesce(new.collegeId, '')), 'A') ||
+                                                   setweight(to_tsvector(coalesce(new.collegeid, '')), 'A') ||
                                                    setweight(to_tsvector(coalesce(new.name, '')), 'A') ||
                                                        setweight(to_tsvector(coalesce(new.phone, '')), 'B') ||
                                                        setweight(to_tsvector(coalesce(new.email, '')), 'A') ||
@@ -126,11 +126,11 @@ struct CreateVectors: AsyncMigration {
         try await database.schema("confessions")
           .deleteField("tsv")
           .update()
-            try await database.schema("posts")
-              .deleteField("tsv")
-              .update()
-            try await database.schema("registeredUsers")
-              .deleteField("tsv")
-              .update()
-        }
+        try await database.schema("posts")
+          .deleteField("tsv")
+          .update()
+        try await database.schema("registeredUsers")
+          .deleteField("tsv")
+          .update()
+    }
 }
