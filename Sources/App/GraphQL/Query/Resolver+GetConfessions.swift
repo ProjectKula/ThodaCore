@@ -29,4 +29,3 @@ extension Resolver {
           .first()
     }
 }
-

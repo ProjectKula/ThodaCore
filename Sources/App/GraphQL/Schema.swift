@@ -131,6 +131,8 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
         Field("createdAt", at: \.createdAt?.timeIntervalSince1970)
         Field("type", at: \.type)
     }
+
+    Union(SearchResult.self, members: RegisteredUser.self, Post.self, Confession.self)
     
     Query {
         Field("users", at: Resolver.getAllRegisteredUsers)
@@ -158,8 +160,11 @@ let schema = try! Graphiti.Schema<Resolver, Request> {
             Argument("id", at: \.id)
         }
         Field("latestConfession", at: Resolver.getLatestConfession)
+        Field<Resolver, Request, [SearchResult], SearchQueryArgs>("search", at: Resolver.search) {
+            Argument("query", at: \.query)
+        }
     }
-    
+
     Mutation {
         Field("editProfile", at: Resolver.editProfile) {
             Argument("bio", at: \.bio)

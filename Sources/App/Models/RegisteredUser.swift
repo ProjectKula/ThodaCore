@@ -7,8 +7,9 @@
 
 import Vapor
 import Fluent
+import FluentPostgresDriver
 
-public final class RegisteredUser: Model, Content {
+public final class RegisteredUser: Model, Content, PostgresDecodable {
     public static let schema = "registeredUsers"
 
     /// The user's ID
