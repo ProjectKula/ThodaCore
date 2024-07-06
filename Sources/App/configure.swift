@@ -24,6 +24,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateAttachments())
     app.migrations.add(CreateNotifications())
     app.migrations.add(CreateBadges())
+    app.migrations.add(CreateVectors())
     
     appConfig = AppConfig.firstLoad()
 
