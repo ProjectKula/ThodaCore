@@ -16,7 +16,7 @@ public final class RegisteredUser: Model, Content {
     public var id: Int?
     
     /// The user's college ID
-    @Parent(key: "collegeId")
+    @Parent(key: "collegeid")
     var collegeId: UnregisteredUser
 
     /// The user's name
