@@ -42,18 +42,20 @@ extension Resolver {
             let pgdb = request.db as! PostgresDatabase
             let search = arguments.query
             
-            let userResult = try await pgdb.query("SELECT * FROM \"registeredUsers\" WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
-            let users = try userResult.rows.map { try $0.decode(MetaRegisteredUser.self) }.map { $0.convert() }
-            
+            let userResult = try await pgdb.query("SELECT id FROM \"registeredUsers\" WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let userIds = try userResult.rows.map { try $0.decode(Int.self) }
+            let users = try await request.loaders.users.loadMany(keys: userIds, on: request.eventLoop)
+            let postResult = try await pgdb.query("SELECT id FROM posts WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let postIds = try postResult.rows.map { try $0.decode(String.self) }
+            let posts = try await request.loaders.posts.loadMany(keys: postIds, on: request.eventLoop)
 
-            //let postResult = try await pgdb.query("SELECT * FROM posts WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
-            //let posts = try postResult.rows.map { try $0.decode(Post.self) }
+            let confessionResult = try await pgdb.query("SELECT * FROM confessions WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let confessionIds = try confessionResult.rows.map { try $0.decode(Int.self) }
+            let confessions = try await request.loaders.confessions.loadMany(keys: confessionIds, on: request.eventLoop)
 
-            //let confessionResult = try await pgdb.query("SELECT * FROM confessions WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
-            //let confessions = try confessionResult.rows.map { try $0.decode(Confession.self) }
-
-            let searchResults: [any SearchResult] = users.map { $0 }// + posts.map { $0 } + confessions.map { $0 }
-            return searchResults.sorted { $0.createdAt! > $1.createdAt! }
+            let searchResults: [any SearchResult] = users.map { $0 } + posts.map { $0 } + confessions.map { $0 }
+            return searchResults.sorted { $0.created
+                                          At! > $1.createdAt! }
         } catch {
             request.logger.error("\(String(reflecting: error))")
             request.logger.error("Error while searching: \(error)")
