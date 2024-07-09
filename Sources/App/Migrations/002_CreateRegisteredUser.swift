@@ -10,7 +10,7 @@ import Fluent
 struct CreateRegisteredUser: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("registeredUsers")
-            .field("collegeId", .string, .required, .references("users", "id"))
+            .field("collegeid", .string, .required, .references("users", "id"))
             .field("name", .string, .required)
             .field("phone", .string, .required)
             .field("email", .string, .required)

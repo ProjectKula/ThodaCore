@@ -59,7 +59,29 @@ class DataLoaders {
     }
 
     // MARK: - Post
-    
+
+    public lazy var confessions: DataLoader<Int, Confession> = DataLoader<Int, Confession>() { keys in
+        return Confession.query(on: self.request.db)
+          .filter(\.$id ~~ keys)
+          .all()
+          .map { confessions in
+              keys.map { key in
+                  DataLoaderFutureValue.success(confessions.first { $0.id! == key }!)
+              }
+          }
+    }
+
+    public lazy var posts: DataLoader<String, Post> = DataLoader<String, Post>() { keys in
+        return Post.query(on: self.request.db)
+          .filter(\.$id ~~ keys)
+          .all()
+          .map { posts in
+              keys.map { key in
+                  DataLoaderFutureValue.success(posts.first { $0.id! == key }!)
+              }
+          }
+    }
+
     // TODO: cache likes count?
     public lazy var postLikes: DataLoader<String, Int> = DataLoader<String, Int>() { keys in
         return LikedPost.query(on: self.request.db)
@@ -67,9 +89,9 @@ class DataLoaders {
           .all()
           .map { likes in
               keys.map { key in
-                  DataLoaderFutureValue.success(likes.filter { $0.$post.id == key }.count)
-              }
+              DataLoaderFutureValue.success(likes.filter { $0.$post.id == key }.count)
           }
+      }
     }
 
     public lazy var attachments: DataLoader<String, [Attachment]> = DataLoader<String, [Attachment]>() { keys in

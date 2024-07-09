@@ -7,8 +7,9 @@
 
 import Vapor
 import Fluent
+import FluentPostgresDriver
 
-public final class RegisteredUser: Model, Content {
+public final class RegisteredUser: Model, Content, PostgresDecodable {
     public static let schema = "registeredUsers"
 
     /// The user's ID
@@ -16,7 +17,7 @@ public final class RegisteredUser: Model, Content {
     public var id: Int?
     
     /// The user's college ID
-    @Parent(key: "collegeId")
+    @Parent(key: "collegeid")
     var collegeId: UnregisteredUser
 
     /// The user's name
