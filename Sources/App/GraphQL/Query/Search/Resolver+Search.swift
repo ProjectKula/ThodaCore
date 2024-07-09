@@ -40,22 +40,21 @@ extension Resolver {
     func search(request: Request, arguments: SearchQueryArgs) async throws -> [any SearchResult] {
         do {
             let pgdb = request.db as! PostgresDatabase
-            let search = arguments.query
+            let search = "\(arguments.query)"
             
-            let userResult = try await pgdb.query("SELECT id FROM \"registeredUsers\" WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let userResult = try await pgdb.query("SELECT id FROM \"registeredUsers\" WHERE tsv @@ to_tsquery(replace(regexp_replace($1, '\\s+', ':* & ', 'g'), ' & $', '') || ':*')", [.init(string: search)]).get()
             let userIds = try userResult.rows.map { try $0.decode(Int.self) }
             let users = try await request.loaders.users.loadMany(keys: userIds, on: request.eventLoop)
-            let postResult = try await pgdb.query("SELECT id FROM posts WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let postResult = try await pgdb.query("SELECT id FROM posts WHERE tsv @@ to_tsquery(replace(regexp_replace($1, '\\s+', ':* & ', 'g'), ' & $', '') || ':*')", [.init(string: search)]).get()
             let postIds = try postResult.rows.map { try $0.decode(String.self) }
             let posts = try await request.loaders.posts.loadMany(keys: postIds, on: request.eventLoop)
 
-            let confessionResult = try await pgdb.query("SELECT * FROM confessions WHERE tsv @@ to_tsquery($1)", [.init(string: search)]).get()
+            let confessionResult = try await pgdb.query("SELECT * FROM confessions WHERE tsv @@ to_tsquery(replace(regexp_replace($1, '\\s+', ':* & ', 'g'), ' & $', '') || ':*')", [.init(string: search)]).get()
             let confessionIds = try confessionResult.rows.map { try $0.decode(Int.self) }
             let confessions = try await request.loaders.confessions.loadMany(keys: confessionIds, on: request.eventLoop)
 
             let searchResults: [any SearchResult] = users.map { $0 } + posts.map { $0 } + confessions.map { $0 }
-            return searchResults.sorted { $0.created
-                                          At! > $1.createdAt! }
+            return searchResults.sorted { $0.createdAt! > $1.createdAt! }
         } catch {
             request.logger.error("\(String(reflecting: error))")
             request.logger.error("Error while searching: \(error)")
